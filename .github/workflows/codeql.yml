@@ -34,7 +34,8 @@ jobs:
         with:
           languages: c-cpp
           build-mode: manual
-          queries: security-and-quality
+          # security queries only; the quality queries mostly flag style notes in the downloaded SDL headers
+          queries: security-extended
 
       - name: Build
         run: cmake --build build --target gamepad-tester
