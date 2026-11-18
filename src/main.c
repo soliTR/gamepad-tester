@@ -541,6 +541,7 @@ static void remove_pad(SDL_JoystickID id)
             continue;
         }
         logmsg("Getrennt: %.42s", SDL_GetGamepadName(pads[i]));
+        SDL_Log("Getrennt: %s", SDL_GetGamepadName(pads[i]));
         SDL_CloseGamepad(pads[i]);
         memmove(&pads[i], &pads[i + 1], (size_t)(npads - i - 1) * sizeof pads[0]);
         npads--;
