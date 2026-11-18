@@ -26,7 +26,7 @@ void eventlog_add(const char *fmt, ...)
 
 int eventlog_count(void) { return count; }
 
-/* Kürzt str auf höchstens max Zeichen, ohne ein UTF-8-Zeichen zu zerschneiden */
+/* Cuts str to at most max characters without splitting a UTF-8 character */
 static void clip(char *dst, size_t n, const char *str, int max)
 {
     const char *p = str;

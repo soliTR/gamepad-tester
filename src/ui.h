@@ -1,8 +1,8 @@
 /*
- * Zeichnen, Text und einfache Schaltflächen.
+ * Drawing, text and simple buttons.
  *
- * Alle Koordinaten beziehen sich auf eine logische Fläche von
- * SCREEN_W x SCREEN_H Pixeln; SDL skaliert sie auf die Fenstergröße.
+ * All coordinates refer to a logical area of SCREEN_W x SCREEN_H pixels;
+ * SDL scales it to the window size.
  */
 #ifndef UI_H
 #define UI_H
@@ -26,13 +26,13 @@ static const SDL_Color C_YELLOW = {232, 192, 60, 255};
 static const SDL_Color C_RED = {232, 82, 82, 255};
 static const SDL_Color C_PRESS = {255, 168, 40, 255};
 
-/* Bewertung: 0 = gut (grün), 1 = grenzwertig (gelb), 2 = schlecht (rot) */
+/* Rating: 0 = good (green), 1 = borderline (yellow), 2 = bad (red) */
 SDL_Color ui_rating_color(int rating);
 
 void ui_init(SDL_Renderer *renderer);
 SDL_Renderer *ui_renderer(void);
 
-/* Maus: Ereignisse weiterreichen und vor jedem Frame ui_begin_frame() aufrufen */
+/* Mouse: pass events on and call ui_begin_frame() before every frame */
 void ui_begin_frame(void);
 void ui_handle_event(const SDL_Event *e);
 
@@ -42,21 +42,21 @@ void ui_rect(float x, float y, float w, float h, SDL_Color c);
 void ui_line(float x1, float y1, float x2, float y2, SDL_Color c);
 void ui_circle(float cx, float cy, float r, SDL_Color c);
 void ui_disc(float cx, float cy, float r, SDL_Color c);
-/* kleiner Punkt (3x3) mit eigener Deckkraft, z. B. für Leuchtspuren */
+/* small dot (3x3) with its own opacity, e.g. for trails */
 void ui_dot(float x, float y, SDL_Color c, Uint8 alpha);
 
 /*
- * Text in der eingebauten 8x8-Schrift, s = Vergrößerung (2 = 16 px hoch).
- * Umlaute und ß werden unterstützt. Gibt die Breite in Pixeln zurück.
+ * Text in the built-in 8x8 font, s = scale (2 = 16 px high).
+ * Returns the width in pixels.
  */
 float ui_text(float x, float y, float s, SDL_Color c, const char *str);
 float ui_textf(float x, float y, float s, SDL_Color c, SDL_PRINTF_FORMAT_STRING const char *fmt, ...) SDL_PRINTF_VARARG_FUNC(5);
 float ui_text_width(float s, const char *str);
 void ui_text_center(float cx, float y, float s, SDL_Color c, const char *str);
 
-/* Schaltfläche; true, wenn sie in diesem Frame angeklickt wurde. on = hervorgehoben */
+/* Button; true if it was clicked in this frame. on = highlighted */
 bool ui_button(float x, float y, float w, float h, const char *label, bool on);
-/* Schieberegler für *v im Bereich 0..1 */
+/* Slider for *v in the range 0..1 */
 void ui_slider(float x, float y, float w, float *v);
 
 #endif

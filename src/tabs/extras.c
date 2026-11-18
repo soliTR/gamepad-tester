@@ -1,4 +1,4 @@
-/* Tab "Extras": Touchpad, LED-Farbe, Spieler-LED und Akku */
+/* "Extras" tab: touchpad, LED color, player LED and battery */
 #include <math.h>
 #include <stdio.h>
 
@@ -30,7 +30,7 @@ static void reset_key(void)
     }
 }
 
-/* Farbton 0..1 in eine kräftige RGB-Farbe umrechnen */
+/* Converts a hue of 0..1 into a saturated RGB color */
 static SDL_Color hue_to_color(float h)
 {
     float r = fabsf(h * 6 - 3) - 1, g = 2 - fabsf(h * 6 - 2), b = 2 - fabsf(h * 6 - 4);
@@ -53,7 +53,7 @@ static void update(SDL_Gamepad *g, const Input *in)
     }
 
     Uint64 now = SDL_GetTicks();
-    if (rainbow && now - rainbow_last > 40) { /* LED nicht öfter als ca. 25-mal pro Sekunde setzen */
+    if (rainbow && now - rainbow_last > 40) { /* don't set the LED more than about 25 times per second */
         rainbow_last = now;
         led_color = hue_to_color((float)(now % 3000) / 3000.0f);
         SDL_SetGamepadLED(g, led_color.r, led_color.g, led_color.b);
@@ -65,7 +65,7 @@ static void draw_touchpad(SDL_Gamepad *g)
     ui_fill(16, 104, 620, 400, C_PANEL);
     ui_text(30, 114, 2, C_ACCENT, "Touchpad");
     if (SDL_GetNumGamepadTouchpads(g) == 0) {
-        ui_text(30, 150, 2, C_DIM, "Kein Touchpad vorhanden.");
+        ui_text(30, 150, 2, C_DIM, "No touchpad available.");
         return;
     }
     const float x = 46, y = 160, w = 560, h = 280;
@@ -93,9 +93,9 @@ static void draw_battery(SDL_Gamepad *g)
 {
     char buf[64];
     ui_fill(16, 514, 620, 246, C_PANEL);
-    ui_text(30, 524, 2, C_ACCENT, "Akku / Verbindung");
+    ui_text(30, 524, 2, C_ACCENT, "Battery / connection");
     ui_text(30, 556, 2, C_TEXT, pad_power_text(g, buf, sizeof buf));
-    ui_textf(30, 580, 2, C_TEXT, "Verbindung: %s", pad_connection_text(g));
+    ui_textf(30, 580, 2, C_TEXT, "Connection: %s", pad_connection_text(g));
 }
 
 static float draw_led(SDL_Gamepad *g, float x, float y)
@@ -104,12 +104,12 @@ static float draw_led(SDL_Gamepad *g, float x, float y)
         const char *name;
         SDL_Color color;
     } presets[] = {
-        {"Rot", {255, 0, 0, 255}},       {"Grün", {0, 255, 0, 255}},  {"Blau", {0, 0, 255, 255}},
-        {"Weiß", {255, 255, 255, 255}},  {"Gelb", {255, 200, 0, 255}}, {"Lila", {180, 0, 255, 255}},
-        {"Aus", {0, 0, 0, 255}},
+        {"Red", {255, 0, 0, 255}},        {"Green", {0, 255, 0, 255}},   {"Blue", {0, 0, 255, 255}},
+        {"White", {255, 255, 255, 255}},  {"Yellow", {255, 200, 0, 255}}, {"Purple", {180, 0, 255, 255}},
+        {"Off", {0, 0, 0, 255}},
     };
     bool has_rgb = pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_RGB_LED_BOOLEAN);
-    ui_text(x, y, 2, C_ACCENT, has_rgb ? "Leuchtfarbe (RGB-LED)" : "Leuchtfarbe: keine RGB-LED");
+    ui_text(x, y, 2, C_ACCENT, has_rgb ? "Light color (RGB LED)" : "Light color: no RGB LED");
     y += 34;
     if (!has_rgb) {
         return y;
@@ -125,7 +125,7 @@ static float draw_led(SDL_Gamepad *g, float x, float y)
         }
         ui_fill(bx + 4, by + 32, 136, 3, presets[i].color);
     }
-    if (ui_button(x + 3 * 148, y + 46, 144, 38, "Bunt", rainbow)) {
+    if (ui_button(x + 3 * 148, y + 46, 144, 38, "Rainbow", rainbow)) {
         rainbow = !rainbow;
     }
     y += 104;
@@ -136,7 +136,7 @@ static float draw_led(SDL_Gamepad *g, float x, float y)
 static void draw_player_led(SDL_Gamepad *g, float x, float y)
 {
     bool has_player_led = pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_PLAYER_LED_BOOLEAN);
-    ui_text(x, y, 2, C_ACCENT, has_player_led ? "Spieler-LED" : "Spieler-LED: nicht gemeldet");
+    ui_text(x, y, 2, C_ACCENT, has_player_led ? "Player LED" : "Player LED: not reported");
     y += 34;
     int player = SDL_GetGamepadPlayerIndex(g);
     for (int i = 0; i < 4; i++) {
@@ -146,7 +146,7 @@ static void draw_player_led(SDL_Gamepad *g, float x, float y)
             SDL_SetGamepadPlayerIndex(g, i);
         }
     }
-    ui_text(x, y + 70, 2, C_DIM, "Zusatztasten: siehe Tab Tasten.");
+    ui_text(x, y + 70, 2, C_DIM, "Extra buttons: see the Buttons tab.");
 }
 
 static void draw(SDL_Gamepad *g, const Input *in)

@@ -1,4 +1,4 @@
-/* Leuchtspur: die letzten Positionen eines Sticks oder Fingers */
+/* Fading trail: the most recent positions of a stick or finger */
 #ifndef TRAIL_H
 #define TRAIL_H
 
@@ -13,7 +13,7 @@ typedef struct {
 
 void trail_push(Trail *t, float x, float y);
 void trail_clear(Trail *t);
-/* Zeichnet die Spur als verblassende Punkte bei (ox + x * sx, oy + y * sy) */
+/* Draws the trail as fading dots at (ox + x * sx, oy + y * sy) */
 void trail_draw(const Trail *t, float ox, float oy, float sx, float sy, SDL_Color c, Uint8 max_alpha);
 
 #endif

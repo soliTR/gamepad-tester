@@ -1,9 +1,9 @@
 /*
- * Gamepad-Tester: Tasten, Sticks, Stickdrift, Vibration, Gyro, Touchpad und LED
- * eines Gamepads testen. Benötigt nur SDL3 (>= 3.4).
+ * Gamepad-Tester: tests the buttons, sticks, stick drift, rumble, gyro,
+ * touchpad and LED of a gamepad. Only needs SDL3 (>= 3.4).
  *
- * Diese Datei enthält Start, Hauptschleife und den Rahmen (Kopfzeile, Tab-Leiste,
- * Fußzeile). Die eigentlichen Tests liegen in src/tabs/.
+ * This file contains startup, the main loop and the frame (header, tab bar,
+ * footer). The actual tests live in src/tabs/.
  */
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -30,17 +30,17 @@ static void reset_all_tabs(void)
 
 static void set_hints(void)
 {
-    /* Gamepads auch dann lesen, wenn das Fenster nicht im Vordergrund ist */
+    /* Read gamepads even when the window is not in the foreground */
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
-    /* DualSense/DS4: erweiterte Berichte für Gyro, Touchpad, Vibration und LED */
+    /* DualSense/DS4: enhanced reports for gyro, touchpad, rumble and LED */
     SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
-    /* Switch-2-Controller laufen über libusb (der Hint fehlt noch in den SDL-Headern) */
+    /* Switch 2 controllers go through libusb (the hint is still missing from the SDL headers) */
     SDL_SetHint("SDL_JOYSTICK_HIDAPI_SWITCH2", "1");
     SDL_SetHint(SDL_HINT_HIDAPI_LIBUSB, "1");
 }
 
 /* ------------------------------------------------------------------ */
-/* Ereignisse                                                          */
+/* Events                                                              */
 /* ------------------------------------------------------------------ */
 
 static void handle_key(SDL_Keycode key, bool *running)
@@ -85,7 +85,7 @@ static void handle_event(const SDL_Event *e, bool *running)
 }
 
 /* ------------------------------------------------------------------ */
-/* Rahmen                                                              */
+/* Frame                                                               */
 /* ------------------------------------------------------------------ */
 
 static void draw_header(SDL_Gamepad *g)
@@ -95,8 +95,8 @@ static void draw_header(SDL_Gamepad *g)
         char buf[96];
         snprintf(buf, sizeof buf, "%.40s", SDL_GetGamepadName(g));
         ui_text(SCREEN_W - 16 - ui_text_width(2, buf), 10, 2, C_ACCENT, buf);
-        snprintf(buf, sizeof buf, "Controller %d von %d%s", pads_current_index() + 1, pads_count(),
-                 pads_count() > 1 ? "  [N] wechseln" : "");
+        snprintf(buf, sizeof buf, "Controller %d of %d%s", pads_current_index() + 1, pads_count(),
+                 pads_count() > 1 ? "  [N] switch" : "");
         ui_text(SCREEN_W - 16 - ui_text_width(2, buf), 32, 2, C_DIM, buf);
     }
     for (int i = 0; i < TAB_COUNT; i++) {
@@ -111,22 +111,22 @@ static void draw_header(SDL_Gamepad *g)
 static void draw_footer(void)
 {
     ui_fill(0, SCREEN_H - 30, SCREEN_W, 30, C_PANEL);
-    ui_text(16, SCREEN_H - 23, 2, C_DIM, "1-7 / Pfeiltasten: Tab   N: Controller   R: zurücksetzen   Esc: Beenden");
+    ui_text(16, SCREEN_H - 23, 2, C_DIM, "1-7 / arrow keys: tab   N: controller   R: reset   Esc: quit");
 }
 
 static void draw_no_pad(void)
 {
-    ui_text_center(640, 300, 3, C_TEXT, "Kein Controller verbunden");
-    ui_text_center(640, 360, 2, C_DIM, "Schließe jetzt einen Controller per USB an");
-    ui_text_center(640, 384, 2, C_DIM, "oder verbinde ihn per Bluetooth.");
-    ui_text_center(640, 430, 2, C_DIM, "Switch 2 Pro Controller: nur per USB-Kabel.");
+    ui_text_center(640, 300, 3, C_TEXT, "No controller connected");
+    ui_text_center(640, 360, 2, C_DIM, "Plug in a controller via USB now");
+    ui_text_center(640, 384, 2, C_DIM, "or connect it via Bluetooth.");
+    ui_text_center(640, 430, 2, C_DIM, "Switch 2 Pro Controller: USB cable only.");
     if (eventlog_count()) {
-        ui_text_center(640, 500, 2, C_ACCENT, "Ereignisse");
+        ui_text_center(640, 500, 2, C_ACCENT, "Events");
         eventlog_draw(440, 530, 6, 40);
     }
 }
 
-/* Ein Frame: Werte lesen, alle Tabs aktualisieren, sichtbaren Tab zeichnen */
+/* One frame: read values, update all tabs, draw the visible tab */
 static bool run_frame(SDL_Renderer *ren)
 {
     SDL_Gamepad *g = pads_current();
@@ -160,20 +160,20 @@ int main(int argc, char **argv)
     (void)argv;
     set_hints();
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
-        SDL_Log("SDL_Init fehlgeschlagen: %s", SDL_GetError());
+        SDL_Log("SDL_Init failed: %s", SDL_GetError());
         return 1;
     }
     SDL_Window *win;
     SDL_Renderer *ren;
     if (!SDL_CreateWindowAndRenderer("Gamepad-Tester", SCREEN_W, SCREEN_H, SDL_WINDOW_RESIZABLE, &win, &ren)) {
-        SDL_Log("Fenster fehlgeschlagen: %s", SDL_GetError());
+        SDL_Log("Creating the window failed: %s", SDL_GetError());
         return 1;
     }
     SDL_SetRenderLogicalPresentation(ren, SCREEN_W, SCREEN_H, SDL_LOGICAL_PRESENTATION_LETTERBOX);
     SDL_SetRenderVSync(ren, 1);
     ui_init(ren);
     pads_on_change(reset_all_tabs);
-    eventlog_add("Programm gestartet");
+    eventlog_add("Program started");
 
     devtools_init();
     int start_tab = devtools_start_tab();

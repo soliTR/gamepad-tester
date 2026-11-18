@@ -1,143 +1,143 @@
 # gamepad-tester
 
-Grafisches Linux-Programm zum Testen von Gamepads. Geschrieben in C mit SDL3 (ab 3.4), gebaut mit CMake.
+Graphical Linux program for testing gamepads. Written in C with SDL3 (3.4 or newer), built with CMake.
 
-Gedacht für PS5 DualSense, 8BitDo-Controller und den Nintendo Switch 2 Pro Controller (nur per USB).
+Made for the PS5 DualSense, 8BitDo controllers and the Nintendo Switch 2 Pro Controller (USB only).
 
-## Funktionen
+## Features
 
-| Tab | Inhalt |
+| Tab | Content |
 | --- | --- |
-| 1 Übersicht | Name, Typ, IDs, Verbindung, Akku, vorhandene Funktionen, Ereignis-Log |
-| 2 Tasten | Controller-Grafik mit Live-Anzeige und eine Checkliste, die jede gedrückte Taste abhakt |
-| 3 Sticks | Beide Sticks live mit Spur und Rohwerten, Trigger analog |
-| 4 Stickdrift | Ruhetest (5 s, Ampel-Bewertung), vergrößerte Mittelansicht, Kreistest mit Rundheitsfehler |
-| 5 Vibration | Linker/rechter Motor einzeln, Stärke-Regler, Wechsel-Test, Rampe, Trigger-Vibration falls vorhanden |
-| 6 Gyro | Live-Werte von Gyro und Beschleunigungssensor, 3D-Ansicht, Verlaufsgraph, Gyro-Ruhetest mit Bias-Messung |
-| 7 Extras | Touchpad, LED-Farbe, Spieler-LED, Akku |
+| 1 Overview | Name, type, IDs, connection, battery, available features, event log |
+| 2 Buttons | Controller graphic with live display and a checklist that ticks off every pressed button |
+| 3 Sticks | Both sticks live with trail and raw values, analog triggers |
+| 4 Drift | Rest test (5 s, traffic-light rating), magnified center view, circle test with roundness error |
+| 5 Rumble | Left/right motor individually, strength slider, alternating test, ramp, trigger rumble if available |
+| 6 Gyro | Live values from gyro and accelerometer, 3D view, history graph, gyro rest test with bias measurement |
+| 7 Extras | Touchpad, LED color, player LED, battery |
 
 ## Installation
 
-### 1. Abhängigkeiten
+### 1. Dependencies
 
-Benötigt werden ein C-Compiler, CMake und SDL3 ab Version 3.4. Unter Arch Linux und CachyOS:
+You need a C compiler, CMake and SDL3 3.4 or newer. On Arch Linux and CachyOS:
 
 ```bash
 sudo pacman -S --needed base-devel cmake sdl3 libusb steam-devices
 ```
 
-- `libusb` braucht SDL für den Switch 2 Pro Controller.
-- `steam-devices` (Repository `multilib`) enthält udev-Regeln, ohne die Vibration, Gyro und LED bei vielen Controllern nicht funktionieren. Nach der Installation die Controller einmal neu anstecken.
+- SDL needs `libusb` for the Switch 2 Pro Controller.
+- `steam-devices` (repository `multilib`) contains udev rules; without them rumble, gyro and LED don't work on many controllers. Reconnect your controllers once after installing it.
 
-Andere Distributionen brauchen die entsprechenden Pakete. Ist dort nur eine ältere SDL3-Version verfügbar, muss SDL3 aus dem Quellcode gebaut werden.
+Other distributions need the equivalent packages. If only an older SDL3 version is available there, build SDL3 from source.
 
-### 2. Bauen
+### 2. Build
 
-Im Projektordner:
+In the project folder:
 
 ```bash
 cmake -B build
 cmake --build build
 ```
 
-Das Programm lässt sich jetzt schon ohne Installation starten:
+You can already run the program without installing it:
 
 ```bash
 ./build/gamepad-tester
 ```
 
-### 3. Installieren
+### 3. Install
 
-Für alle Benutzer (nach `/usr/local`):
+For all users (to `/usr/local`):
 
 ```bash
 sudo cmake --install build
 ```
 
-Oder nur für den eigenen Benutzer (nach `~/.local`, ohne Root-Rechte):
+Or just for your own user (to `~/.local`, no root needed):
 
 ```bash
 cmake --install build --prefix ~/.local
 ```
 
-Installiert werden das Programm (`bin/gamepad-tester`) und ein Eintrag im Anwendungsmenü („Gamepad-Tester“). Danach startet es mit `gamepad-tester` oder über das Menü. Bei der Installation nach `~/.local` muss `~/.local/bin` im `PATH` stehen. Bei den meisten Distributionen ist das schon der Fall, sonst in fish:
+This installs the program (`bin/gamepad-tester`) and an application menu entry ("Gamepad-Tester"). Start it with `gamepad-tester` or from the menu. When installing to `~/.local`, `~/.local/bin` must be in your `PATH`. Most distributions already do this; otherwise, in fish:
 
 ```bash
 fish_add_path ~/.local/bin
 ```
 
-### Deinstallieren
+### Uninstall
 
-CMake merkt sich die installierten Dateien in `build/install_manifest.txt`:
+CMake records the installed files in `build/install_manifest.txt`:
 
 ```bash
 xargs rm -v < build/install_manifest.txt
 ```
 
-Wurde mit `sudo` installiert, den Befehl ebenfalls mit `sudo` ausführen.
+If you installed with `sudo`, run this with `sudo` as well.
 
-## Bedienung
+## Usage
 
-- `1` bis `7` oder Pfeil links/rechts: Tab wechseln
-- `N`: zwischen mehreren Controllern wechseln
-- `R`: Test im aktuellen Tab zurücksetzen
-- `Esc`: beenden
-- Schaltflächen per Maus
+- `1` to `7` or left/right arrow: switch tabs
+- `N`: switch between multiple controllers
+- `R`: reset the test in the current tab
+- `Esc`: quit
+- Buttons are clicked with the mouse
 
-Controller können jederzeit an- und abgesteckt werden.
+Controllers can be plugged in and out at any time.
 
-## Bewertung Stickdrift
+## Stick drift rating
 
-Der Ruhetest misst 5 Sekunden lang, während beide Sticks losgelassen sind. Bewertet wird die größte Auslenkung in dieser Zeit:
+The rest test measures for 5 seconds while both sticks are released. It rates the largest deflection during that time:
 
-- bis 3 %: OK
-- bis 7 %: leichter Drift, in Spielen meist durch die Deadzone abgefangen
-- darüber: Drift
+- up to 3 %: OK
+- up to 7 %: slight drift, usually absorbed by the deadzone in games
+- above: drift
 
-Der Kreistest zeigt, ob der Stick den Rand in allen Richtungen erreicht (Minimum unter 90 % ist auffällig) und wie gleichmäßig der Ausschlag ist.
+The circle test shows whether the stick reaches the edge in every direction (a minimum below 90 % is suspicious) and how even its range of motion is.
 
-## Fehlerbehebung
+## Troubleshooting
 
-- **Vibration, Gyro oder LED fehlen:** Meist fehlen Zugriffsrechte auf `/dev/hidraw*`. Unter Arch/CachyOS liefert das Paket `steam-devices` passende udev-Regeln. Danach den Controller neu anstecken.
-- **Steam läuft:** Steam Input kann den Controller belegen. Steam dann beenden.
-- **Switch 2 Pro Controller:** SDL unterstützt ihn nur per USB (über libusb), nicht per Bluetooth.
-- **8BitDo:** Gyro und Vibration hängen vom Modus ab (X-Input, D-Input, Switch). Im Switch-Modus sind meist beide verfügbar.
+- **Rumble, gyro or LED missing:** Usually access to `/dev/hidraw*` is missing. On Arch/CachyOS the `steam-devices` package provides suitable udev rules. Reconnect the controller afterwards.
+- **Steam is running:** Steam Input may grab the controller. Quit Steam.
+- **Switch 2 Pro Controller:** SDL supports it only over USB (via libusb), not over Bluetooth.
+- **8BitDo:** Gyro and rumble depend on the mode (X-Input, D-Input, Switch). Switch mode usually has both.
 
-## Entwicklung
+## Development
 
-### Aufbau
+### Structure
 
 ```
 src/
-  main.c        Start, Hauptschleife, Kopf- und Fußzeile
-  ui.c/.h       Farben, Zeichnen, Text (inkl. Umlaute), Schaltflächen
-  pads.c/.h     verbundene Controller, Auswahl, An-/Abstecken
-  padinfo.c/.h  Namen von Typen, Tasten und Triggern; Fähigkeiten
-  input.c/.h    Stick- und Triggerwerte pro Frame
-  trail.c/.h    Leuchtspur für Sticks und Touchpad
-  eventlog.c/.h Ereignis-Log
-  quat.h        Quaternionen für die 3D-Ansicht
-  devtools.c/.h virtueller Controller und Screenshots
+  main.c        startup, main loop, header and footer
+  ui.c/.h       colors, drawing, text (8x8 bitmap font), buttons
+  pads.c/.h     connected controllers, selection, hotplug
+  padinfo.c/.h  names of types, buttons and triggers; capabilities
+  input.c/.h    stick and trigger values per frame
+  trail.c/.h    fading trail for sticks and touchpad
+  eventlog.c/.h event log
+  quat.h        quaternions for the 3D view
+  devtools.c/.h virtual controller and screenshots
   tabs/
-    tabs.h      gemeinsame Schnittstelle aller Tabs
+    tabs.h      common interface of all tabs
     info.c  buttons.c  sticks.c  drift.c  rumble.c  gyro.c  extras.c
 ```
 
-Jeder Tab ist ein `Tab`-Objekt mit `reset`, `update`, `draw` und `reset_key` (siehe `tabs/tabs.h`).
-`update` läuft für alle Tabs in jedem Frame, damit z. B. eine Vibration weiterläuft, wenn man den Tab wechselt.
-`draw` läuft nur für den sichtbaren Tab. Ein neuer Tab braucht eine eigene Datei und einen Eintrag in der Liste `tabs[]` in `main.c`.
+Each tab is a `Tab` object with `reset`, `update`, `draw` and `reset_key` (see `tabs/tabs.h`).
+`update` runs for all tabs every frame, so that e.g. rumble keeps going when you switch tabs.
+`draw` runs only for the visible tab. A new tab needs its own file and an entry in the `tabs[]` list in `main.c`.
 
-### Testen ohne Hardware
+### Testing without hardware
 
 ```bash
-GAMEPAD_TESTER_VIRTUAL=1 ./build/gamepad-tester            # virtueller Controller
-GAMEPAD_TESTER_VIRTUAL=1 GAMEPAD_TESTER_TAB=3 GAMEPAD_TESTER_SHOT=bild.bmp ./build/gamepad-tester
+GAMEPAD_TESTER_VIRTUAL=1 ./build/gamepad-tester            # virtual controller
+GAMEPAD_TESTER_VIRTUAL=1 GAMEPAD_TESTER_TAB=3 GAMEPAD_TESTER_SHOT=screenshot.bmp ./build/gamepad-tester
 ```
 
-`GAMEPAD_TESTER_SHOT` speichert nach 30 Frames einen Screenshot und beendet das Programm.
+`GAMEPAD_TESTER_SHOT` saves a screenshot after 30 frames and quits.
 
-## Lizenz
+## License
 
-MIT, siehe [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).
 
-Verwendet [SDL3](https://libsdl.org) (zlib-Lizenz). Produkt- und Markennamen wie DualSense, Nintendo Switch oder 8BitDo gehören ihren jeweiligen Inhabern und dienen nur zur Beschreibung, welche Controller unterstützt werden.
+Uses [SDL3](https://libsdl.org) (zlib license). Product and brand names such as DualSense, Nintendo Switch or 8BitDo belong to their respective owners and are only used to describe which controllers are supported.

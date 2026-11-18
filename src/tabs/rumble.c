@@ -1,4 +1,4 @@
-/* Tab "Vibration": Motoren einzeln und in Mustern ansteuern */
+/* "Rumble" tab: drive the motors individually and in patterns */
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,12 +9,12 @@
 
 typedef enum {
     RUMBLE_OFF,
-    RUMBLE_LOW,       /* linker Motor (tief) */
-    RUMBLE_HIGH,      /* rechter Motor (hoch) */
+    RUMBLE_LOW,       /* left motor (low frequency) */
+    RUMBLE_HIGH,      /* right motor (high frequency) */
     RUMBLE_BOTH,
     RUMBLE_CONTINUOUS,
-    RUMBLE_ALTERNATE, /* links/rechts im Wechsel */
-    RUMBLE_RAMP,      /* langsam lauter */
+    RUMBLE_ALTERNATE, /* left/right alternating */
+    RUMBLE_RAMP,      /* slowly getting stronger */
     RUMBLE_TRIGGER_L,
     RUMBLE_TRIGGER_R,
     RUMBLE_TRIGGER_BOTH,
@@ -25,7 +25,7 @@ enum { MOTOR_LOW, MOTOR_HIGH, MOTOR_TRIGGER_L, MOTOR_TRIGGER_R, MOTOR_COUNT };
 static RumbleMode mode;
 static Uint64 mode_start;
 static float strength = 0.7f;
-static Uint16 current[MOTOR_COUNT]; /* zuletzt gesendete Werte */
+static Uint16 current[MOTOR_COUNT]; /* last values sent */
 static Uint64 last_send;
 static char error[160];
 
@@ -45,7 +45,7 @@ static void reset(void)
 
 static void reset_key(void) { start(RUMBLE_OFF); }
 
-/* Berechnet die Motorstärken für den aktuellen Zeitpunkt; schaltet abgelaufene Muster ab */
+/* Computes the motor levels for the current time; switches off expired patterns */
 static void compute_levels(Uint64 now, Uint16 v[MOTOR_COUNT])
 {
     float t = (float)(now - mode_start) / 1000.0f;
@@ -73,8 +73,8 @@ static void compute_levels(Uint64 now, Uint16 v[MOTOR_COUNT])
 }
 
 /*
- * Sendet nur bei Änderungen, während der Vibration zusätzlich jede Sekunde,
- * weil jeder Befehl nach 2 s von selbst endet.
+ * Only sends on changes, and additionally every second while rumbling,
+ * because each command ends by itself after 2 s.
  */
 static void update(SDL_Gamepad *g, const Input *in)
 {
@@ -92,15 +92,15 @@ static void update(SDL_Gamepad *g, const Input *in)
     bool motors_involved = v[MOTOR_LOW] || v[MOTOR_HIGH] || current[MOTOR_LOW] || current[MOTOR_HIGH];
     bool triggers_involved = v[MOTOR_TRIGGER_L] || v[MOTOR_TRIGGER_R] || current[MOTOR_TRIGGER_L] || current[MOTOR_TRIGGER_R];
     if (motors_involved && !SDL_RumbleGamepad(g, v[MOTOR_LOW], v[MOTOR_HIGH], 2000)) {
-        snprintf(error, sizeof error, "Vibration fehlgeschlagen: %s", SDL_GetError());
+        snprintf(error, sizeof error, "Rumble failed: %s", SDL_GetError());
     }
     if (triggers_involved && !SDL_RumbleGamepadTriggers(g, v[MOTOR_TRIGGER_L], v[MOTOR_TRIGGER_R], 2000)) {
-        snprintf(error, sizeof error, "Trigger-Vibration fehlgeschlagen: %s", SDL_GetError());
+        snprintf(error, sizeof error, "Trigger rumble failed: %s", SDL_GetError());
     }
     memcpy(current, v, sizeof v);
 }
 
-/* Kreis, der mit der Motorstärke wächst und wackelt */
+/* Circle that grows and wobbles with the motor level */
 static void draw_motor(float x, float y, const char *label, Uint16 value)
 {
     float f = value / 65535.0f;
@@ -113,7 +113,7 @@ static void draw_motor(float x, float y, const char *label, Uint16 value)
     ui_text_center(x, y + 92, 2, C_DIM, buf);
 }
 
-/* Schaltfläche, die ein Muster startet und hervorgehoben ist, solange es läuft */
+/* Button that starts a pattern and stays highlighted while it runs */
 static void mode_button(float x, float y, float w, const char *label, RumbleMode m)
 {
     if (ui_button(x, y, w, 40, label, mode == m)) {
@@ -129,53 +129,53 @@ static void draw(SDL_Gamepad *g, const Input *in)
     float x = 40, y = 116;
 
     if (!has_rumble) {
-        ui_text(x, y, 2, C_YELLOW, "Dieser Controller meldet keine Vibration. Du kannst es trotzdem versuchen.");
+        ui_text(x, y, 2, C_YELLOW, "No rumble reported - you can still try.");
         y += 30;
     }
-    ui_text(x, y, 2, C_TEXT, "Stärke");
-    ui_slider(x + 120, y - 2, 400, &strength);
+    ui_text(x, y, 2, C_TEXT, "Strength");
+    ui_slider(x + 150, y - 2, 400, &strength);
     y += 50;
 
-    mode_button(x, y, 310, "Links (tief) 1,5 s", RUMBLE_LOW);
-    mode_button(x + 330, y, 310, "Rechts (hoch) 1,5 s", RUMBLE_HIGH);
+    mode_button(x, y, 310, "Left (low) 1.5 s", RUMBLE_LOW);
+    mode_button(x + 330, y, 310, "Right (high) 1.5 s", RUMBLE_HIGH);
     y += 54;
-    mode_button(x, y, 310, "Beide 1,5 s", RUMBLE_BOTH);
-    if (ui_button(x + 330, y, 310, 40, mode == RUMBLE_CONTINUOUS ? "Dauerbetrieb AUS" : "Dauerbetrieb AN",
+    mode_button(x, y, 310, "Both 1.5 s", RUMBLE_BOTH);
+    if (ui_button(x + 330, y, 310, 40, mode == RUMBLE_CONTINUOUS ? "Continuous OFF" : "Continuous ON",
                   mode == RUMBLE_CONTINUOUS)) {
         start(mode == RUMBLE_CONTINUOUS ? RUMBLE_OFF : RUMBLE_CONTINUOUS);
     }
     y += 54;
-    mode_button(x, y, 310, "Wechsel L/R (4 s)", RUMBLE_ALTERNATE);
-    mode_button(x + 330, y, 310, "Rampe 0-100 % (3 s)", RUMBLE_RAMP);
+    mode_button(x, y, 310, "Alternate L/R (4 s)", RUMBLE_ALTERNATE);
+    mode_button(x + 330, y, 310, "Ramp 0-100 % (3 s)", RUMBLE_RAMP);
     y += 54;
-    if (ui_button(x, y, 640, 40, "Stopp", false)) {
+    if (ui_button(x, y, 640, 40, "Stop", false)) {
         start(RUMBLE_OFF);
     }
     y += 70;
 
     ui_text(x, y, 2, has_trigger_rumble ? C_ACCENT : C_DIM,
-            has_trigger_rumble ? "Trigger-Vibration" : "Trigger-Vibration: nicht vorhanden");
+            has_trigger_rumble ? "Trigger rumble" : "Trigger rumble: not available");
     y += 30;
     if (has_trigger_rumble) {
-        mode_button(x, y, 200, "Trigger links", RUMBLE_TRIGGER_L);
-        mode_button(x + 210, y, 200, "Trigger rechts", RUMBLE_TRIGGER_R);
-        mode_button(x + 420, y, 200, "Beide", RUMBLE_TRIGGER_BOTH);
+        mode_button(x, y, 200, "Left trigger", RUMBLE_TRIGGER_L);
+        mode_button(x + 210, y, 200, "Right trigger", RUMBLE_TRIGGER_R);
+        mode_button(x + 420, y, 200, "Both", RUMBLE_TRIGGER_BOTH);
         y += 54;
     } else if (SDL_GetGamepadType(g) == SDL_GAMEPAD_TYPE_PS5) {
-        ui_text(x, y, 2, C_DIM, "Die adaptiven Trigger der DualSense steuert SDL nicht an.");
+        ui_text(x, y, 2, C_DIM, "SDL can't drive the adaptive triggers.");
         y += 24;
     }
     if (error[0]) {
         ui_text(x, y + 10, 2, C_RED, error);
     }
 
-    draw_motor(850, 300, "Links (tief)", current[MOTOR_LOW]);
-    draw_motor(1110, 300, "Rechts (hoch)", current[MOTOR_HIGH]);
+    draw_motor(850, 300, "Left (low)", current[MOTOR_LOW]);
+    draw_motor(1110, 300, "Right (high)", current[MOTOR_HIGH]);
     if (has_trigger_rumble) {
         draw_motor(850, 560, "Trigger L", current[MOTOR_TRIGGER_L]);
         draw_motor(1110, 560, "Trigger R", current[MOTOR_TRIGGER_R]);
     }
-    ui_text_center(980, 700, 2, C_DIM, "Spürst du beide Motoren getrennt?");
+    ui_text_center(980, 700, 2, C_DIM, "Can you feel both motors separately?");
 }
 
-const Tab tab_rumble = {"Vibration", reset, update, draw, reset_key};
+const Tab tab_rumble = {"Rumble", reset, update, draw, reset_key};

@@ -28,7 +28,7 @@ static bool SDLCALL virtual_led(void *userdata, Uint8 r, Uint8 g, Uint8 b)
     return true;
 }
 
-/* Virtueller Controller mit allen Tasten, Touchpad und Sensoren */
+/* Virtual controller with all buttons, a touchpad and sensors */
 static void attach_virtual_pad(void)
 {
     static SDL_VirtualJoystickTouchpadDesc touchpad = {2, {0, 0, 0}};
@@ -42,11 +42,11 @@ static void attach_virtual_pad(void)
     desc.touchpads = &touchpad;
     desc.nsensors = 2;
     desc.sensors = sensors;
-    desc.name = "Virtueller Test-Controller";
+    desc.name = "Virtual test controller";
     desc.Rumble = virtual_rumble;
     desc.SetLED = virtual_led;
     if (!SDL_AttachVirtualJoystick(&desc)) {
-        SDL_Log("Virtueller Controller fehlgeschlagen: %s", SDL_GetError());
+        SDL_Log("Virtual controller failed: %s", SDL_GetError());
     }
 }
 
@@ -65,7 +65,7 @@ int devtools_start_tab(void)
     return tab ? SDL_atoi(tab) : -1;
 }
 
-/* Linker Stick kreist, eine Taste ist gedrückt, Sensoren melden feste Werte */
+/* Left stick circles, a button is held, sensors report fixed values */
 void devtools_before_frame(void)
 {
     SDL_Gamepad *g = pads_current();

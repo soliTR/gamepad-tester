@@ -1,6 +1,6 @@
 #include "input.h"
 
-/* Rohwert -32768..32767 auf -1..1 abbilden, ohne dass eine Seite zu kurz kommt */
+/* Maps the raw value -32768..32767 to -1..1 so that both ends reach exactly 1 */
 static float normalize(Sint16 v) { return v < 0 ? v / 32768.0f : v / 32767.0f; }
 
 void input_read(SDL_Gamepad *g, Input *in)

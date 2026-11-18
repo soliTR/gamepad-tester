@@ -1,4 +1,4 @@
-/* Tab "Übersicht": Daten und Fähigkeiten des Controllers, Liste aller Controller */
+/* "Overview" tab: controller data and capabilities, list of all controllers */
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -8,7 +8,7 @@
 #include "tabs.h"
 #include "ui.h"
 
-/* Zeile "Bezeichnung   Wert" */
+/* "Label   value" row */
 static void row(float x, float y, const char *label, SDL_Color c, SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
     SDL_PRINTF_VARARG_FUNC(5);
 
@@ -25,7 +25,7 @@ static void row(float x, float y, const char *label, SDL_Color c, const char *fm
 
 static void row_yesno(float x, float y, const char *label, bool v, const char *extra)
 {
-    row(x, y, label, v ? C_GREEN : C_DIM, "%s%s", v ? "ja" : "nein", v && extra ? extra : "");
+    row(x, y, label, v ? C_GREEN : C_DIM, "%s%s", v ? "yes" : "no", v && extra ? extra : "");
 }
 
 static float draw_controller_data(SDL_Gamepad *g, float x, float y)
@@ -35,12 +35,12 @@ static float draw_controller_data(SDL_Gamepad *g, float x, float y)
     y += 30;
     row(x, y, "Name", C_TEXT, "%.22s", SDL_GetGamepadName(g));
     y += 22;
-    row(x, y, "Typ", C_TEXT, "%s", pad_type_name(SDL_GetGamepadType(g)));
+    row(x, y, "Type", C_TEXT, "%s", pad_type_name(SDL_GetGamepadType(g)));
     y += 22;
-    row(x, y, "Hersteller/Produkt", C_TEXT, "%04x:%04x", SDL_GetGamepadVendor(g), SDL_GetGamepadProduct(g));
+    row(x, y, "Vendor/product", C_TEXT, "%04x:%04x", SDL_GetGamepadVendor(g), SDL_GetGamepadProduct(g));
     y += 22;
     const char *serial = SDL_GetGamepadSerial(g);
-    row(x, y, "Seriennummer", C_TEXT, "%.22s", serial && *serial ? serial : "-");
+    row(x, y, "Serial number", C_TEXT, "%.22s", serial && *serial ? serial : "-");
     y += 22;
     Uint16 fw = SDL_GetGamepadFirmwareVersion(g);
     if (fw) {
@@ -49,15 +49,15 @@ static float draw_controller_data(SDL_Gamepad *g, float x, float y)
         row(x, y, "Firmware", C_TEXT, "-");
     }
     y += 22;
-    row(x, y, "Verbindung", C_TEXT, "%s", pad_connection_text(g));
+    row(x, y, "Connection", C_TEXT, "%s", pad_connection_text(g));
     y += 22;
-    row(x, y, "Stromversorgung", C_TEXT, "%s", pad_power_text(g, buf, sizeof buf));
+    row(x, y, "Power", C_TEXT, "%s", pad_power_text(g, buf, sizeof buf));
     y += 22;
     int player = SDL_GetGamepadPlayerIndex(g);
     if (player >= 0) {
-        row(x, y, "Spieler-Nummer", C_TEXT, "%d", player + 1);
+        row(x, y, "Player number", C_TEXT, "%d", player + 1);
     } else {
-        row(x, y, "Spieler-Nummer", C_TEXT, "-");
+        row(x, y, "Player number", C_TEXT, "-");
     }
     return y + 40;
 }
@@ -65,31 +65,31 @@ static float draw_controller_data(SDL_Gamepad *g, float x, float y)
 static void draw_capabilities(SDL_Gamepad *g, float x, float y)
 {
     char rate[32];
-    ui_text(x, y, 2, C_ACCENT, "Fähigkeiten");
+    ui_text(x, y, 2, C_ACCENT, "Capabilities");
     y += 30;
     int buttons = 0;
     for (int b = 0; b < SDL_GAMEPAD_BUTTON_COUNT; b++) {
         buttons += SDL_GamepadHasButton(g, (SDL_GamepadButton)b);
     }
-    row(x, y, "Tasten", C_TEXT, "%d", buttons);
+    row(x, y, "Buttons", C_TEXT, "%d", buttons);
     y += 22;
-    row_yesno(x, y, "Analoge Trigger", pad_has_trigger(g, 0), NULL);
+    row_yesno(x, y, "Analog triggers", pad_has_trigger(g, 0), NULL);
     y += 22;
-    row_yesno(x, y, "Vibration", pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN), NULL);
+    row_yesno(x, y, "Rumble", pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN), NULL);
     y += 22;
-    row_yesno(x, y, "Trigger-Vibration", pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN), NULL);
+    row_yesno(x, y, "Trigger rumble", pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN), NULL);
     y += 22;
     snprintf(rate, sizeof rate, " (%.0f Hz)", SDL_GetGamepadSensorDataRate(g, SDL_SENSOR_GYRO));
-    row_yesno(x, y, "Gyrosensor", SDL_GamepadHasSensor(g, SDL_SENSOR_GYRO), rate);
+    row_yesno(x, y, "Gyroscope", SDL_GamepadHasSensor(g, SDL_SENSOR_GYRO), rate);
     y += 22;
     snprintf(rate, sizeof rate, " (%.0f Hz)", SDL_GetGamepadSensorDataRate(g, SDL_SENSOR_ACCEL));
-    row_yesno(x, y, "Beschleunigung", SDL_GamepadHasSensor(g, SDL_SENSOR_ACCEL), rate);
+    row_yesno(x, y, "Accelerometer", SDL_GamepadHasSensor(g, SDL_SENSOR_ACCEL), rate);
     y += 22;
     row_yesno(x, y, "Touchpad", SDL_GetNumGamepadTouchpads(g) > 0, NULL);
     y += 22;
-    row_yesno(x, y, "RGB-LED", pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_RGB_LED_BOOLEAN), NULL);
+    row_yesno(x, y, "RGB LED", pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_RGB_LED_BOOLEAN), NULL);
     y += 22;
-    row_yesno(x, y, "Spieler-LED", pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_PLAYER_LED_BOOLEAN), NULL);
+    row_yesno(x, y, "Player LED", pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_PLAYER_LED_BOOLEAN), NULL);
 }
 
 static void draw(SDL_Gamepad *g, const Input *in)
@@ -100,7 +100,7 @@ static void draw(SDL_Gamepad *g, const Input *in)
 
     float x = 720;
     y = 116;
-    ui_text(x, y, 2, C_ACCENT, "Verbundene Controller (anklicken)");
+    ui_text(x, y, 2, C_ACCENT, "Connected controllers (click)");
     y += 30;
     for (int i = 0; i < pads_count(); i++) {
         char label[64];
@@ -113,10 +113,10 @@ static void draw(SDL_Gamepad *g, const Input *in)
         y += 36;
     }
     y += 20;
-    ui_text(x, y, 2, C_ACCENT, "Ereignisse");
+    ui_text(x, y, 2, C_ACCENT, "Events");
     eventlog_draw(x, y + 30, 12, 33);
 }
 
 static void reset(void) {}
 
-const Tab tab_info = {"Übersicht", reset, NULL, draw, NULL};
+const Tab tab_info = {"Overview", reset, NULL, draw, NULL};

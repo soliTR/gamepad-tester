@@ -1,9 +1,9 @@
 /*
- * Hilfen zum Testen ohne echte Hardware, gesteuert über Umgebungsvariablen:
+ * Helpers for testing without real hardware, controlled by environment variables:
  *
- *   GAMEPAD_TESTER_VIRTUAL=1      virtuellen Controller anhängen
- *   GAMEPAD_TESTER_TAB=<n>        mit Tab n starten (0 = Übersicht)
- *   GAMEPAD_TESTER_SHOT=<datei>   nach 30 Frames Screenshot (BMP) speichern und beenden
+ *   GAMEPAD_TESTER_VIRTUAL=1      attach a virtual controller
+ *   GAMEPAD_TESTER_TAB=<n>        start with tab n (0 = Overview)
+ *   GAMEPAD_TESTER_SHOT=<file>    save a screenshot (BMP) after 30 frames and quit
  */
 #ifndef DEVTOOLS_H
 #define DEVTOOLS_H
@@ -11,11 +11,11 @@
 #include <SDL3/SDL.h>
 
 void devtools_init(void);
-/* gewünschter Start-Tab oder -1 */
+/* requested start tab or -1 */
 int devtools_start_tab(void);
-/* vor jedem Frame: bewegt den virtuellen Controller */
+/* before every frame: moves the virtual controller */
 void devtools_before_frame(void);
-/* nach dem Zeichnen, vor SDL_RenderPresent; true = Programm soll enden */
+/* after drawing, before SDL_RenderPresent; true = the program should quit */
 bool devtools_after_draw(void);
 
 #endif

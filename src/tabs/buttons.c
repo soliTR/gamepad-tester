@@ -1,4 +1,4 @@
-/* Tab "Tasten": Controller-Grafik und Checkliste aller Tasten */
+/* "Buttons" tab: controller graphic and a checklist of all buttons */
 #include <stdio.h>
 #include <string.h>
 
@@ -7,7 +7,7 @@
 #include "tabs.h"
 #include "ui.h"
 
-/* Trigger gilt als getestet, wenn er so weit durchgedrückt wurde */
+/* A trigger counts as tested once it was pressed this far */
 #define TRIGGER_FULL 0.95f
 
 static bool seen[SDL_GAMEPAD_BUTTON_COUNT];
@@ -22,14 +22,14 @@ static void reset(void)
 static void reset_key(void)
 {
     reset();
-    eventlog_add("Checkliste zurückgesetzt");
+    eventlog_add("Checklist reset");
 }
 
 void buttons_on_press(SDL_Gamepad *g, SDL_GamepadButton b)
 {
     if (b >= 0 && b < SDL_GAMEPAD_BUTTON_COUNT) {
         seen[b] = true;
-        eventlog_add("%s gedrückt", pad_button_name(g, b));
+        eventlog_add("%s pressed", pad_button_name(g, b));
     }
 }
 
@@ -38,13 +38,13 @@ static void update(SDL_Gamepad *g, const Input *in)
     for (int s = 0; s < 2; s++) {
         if (in->trigger[s] >= TRIGGER_FULL && !seen_trigger[s]) {
             seen_trigger[s] = true;
-            eventlog_add("%s voll durchgedrückt", pad_trigger_name(g, s));
+            eventlog_add("%s fully pressed", pad_trigger_name(g, s));
         }
     }
 }
 
 /* ------------------------------------------------------------------ */
-/* Controller-Grafik                                                   */
+/* Controller graphic                                                  */
 /* ------------------------------------------------------------------ */
 
 static SDL_Color button_color(SDL_Gamepad *g, SDL_GamepadButton b)
@@ -67,7 +67,7 @@ static void draw_button_rect(SDL_Gamepad *g, SDL_GamepadButton b, float x, float
     }
 }
 
-/* Runde Haupttaste; PlayStation-Symbole werden gezeichnet, sonst die Aufschrift */
+/* Round face button; PlayStation symbols are drawn, otherwise the label */
 static void draw_face_button(SDL_Gamepad *g, SDL_GamepadButton b, float x, float y)
 {
     if (!SDL_GamepadHasButton(g, b)) {
@@ -128,10 +128,10 @@ static void draw_dpad(SDL_Gamepad *g, float cx, float cy)
 
 static void draw_controller(SDL_Gamepad *g, const Input *in)
 {
-    /* PlayStation: Steuerkreuz oben links, linker Stick unten. Sonst umgekehrt. */
+    /* PlayStation: d-pad top left, left stick below. Other controllers: the other way round. */
     bool ps = pad_is_playstation(SDL_GetGamepadType(g));
 
-    /* Gehäuse */
+    /* Body */
     ui_disc(410, 290, 80, C_PANEL2);
     ui_disc(870, 290, 80, C_PANEL2);
     ui_disc(450, 440, 80, C_PANEL2);
@@ -179,7 +179,7 @@ static void draw_controller(SDL_Gamepad *g, const Input *in)
 }
 
 /* ------------------------------------------------------------------ */
-/* Checkliste                                                          */
+/* Checklist                                                           */
 /* ------------------------------------------------------------------ */
 
 static void check_item(float x, float y, bool done, bool pressed, const char *label)
@@ -193,7 +193,7 @@ static void check_item(float x, float y, bool done, bool pressed, const char *la
     ui_text(x + 24, y, 2, done ? C_TEXT : C_DIM, label);
 }
 
-/* Zeichnet die Checkliste und gibt zurück, ob alles getestet ist */
+/* Draws the checklist and returns whether everything has been tested */
 static bool draw_checklist(SDL_Gamepad *g, const Input *in, float x, float y)
 {
     int total = 0, done = 0;
@@ -209,7 +209,7 @@ static bool draw_checklist(SDL_Gamepad *g, const Input *in, float x, float y)
             done += seen_trigger[s];
         }
     }
-    ui_textf(x, y, 2, done == total ? C_GREEN : C_ACCENT, "Getestet: %d / %d", done, total);
+    ui_textf(x, y, 2, done == total ? C_GREEN : C_ACCENT, "Tested: %d / %d", done, total);
     y += 28;
 
     for (int b = 0; b < SDL_GAMEPAD_BUTTON_COUNT; b++) {
@@ -222,7 +222,7 @@ static bool draw_checklist(SDL_Gamepad *g, const Input *in, float x, float y)
     for (int s = 0; s < 2; s++) {
         if (pad_has_trigger(g, s)) {
             char label[32];
-            snprintf(label, sizeof label, "%s ganz drücken", pad_trigger_name(g, s));
+            snprintf(label, sizeof label, "%s fully pressed", pad_trigger_name(g, s));
             check_item(x, y, seen_trigger[s], in->trigger[s] > 0.02f, label);
             y += 22;
         }
@@ -235,14 +235,14 @@ static void draw(SDL_Gamepad *g, const Input *in)
     draw_controller(g, in);
     bool complete = draw_checklist(g, in, 950, 112);
 
-    ui_text(20, 112, 2, C_ACCENT, "Letzte Eingaben");
+    ui_text(20, 112, 2, C_ACCENT, "Recent input");
     eventlog_draw(20, 140, 24, 19);
-    ui_text(20, 660, 2, C_PRESS, "orange = gedrückt");
-    ui_text(20, 682, 2, C_GREEN, "grün = getestet");
-    ui_text(20, 726, 2, C_DIM, "[R] zurücksetzen");
+    ui_text(20, 660, 2, C_PRESS, "orange = pressed");
+    ui_text(20, 682, 2, C_GREEN, "green = tested");
+    ui_text(20, 726, 2, C_DIM, "[R] reset");
     if (complete) {
-        ui_text_center(640, 684, 3, C_GREEN, "Alle Tasten getestet!");
+        ui_text_center(640, 684, 3, C_GREEN, "All buttons tested!");
     }
 }
 
-const Tab tab_buttons = {"Tasten", reset, update, draw, reset_key};
+const Tab tab_buttons = {"Buttons", reset, update, draw, reset_key};

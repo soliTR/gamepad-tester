@@ -1,4 +1,4 @@
-/* Tab "Sticks": beide Sticks live mit Leuchtspur, Trigger als Balken */
+/* "Sticks" tab: both sticks live with a trail, triggers as bars */
 #include <math.h>
 
 #include "padinfo.h"
@@ -45,13 +45,13 @@ static void draw_stick_view(SDL_Gamepad *g, const Input *in, int s, float cx, fl
 static void draw_stick_values(SDL_Gamepad *g, const Input *in, int s, float x, float y)
 {
     float magnitude = hypotf(in->x[s], in->y[s]);
-    float angle = atan2f(-in->y[s], in->x[s]) * RAD2DEG; /* 0° = rechts, gegen den Uhrzeigersinn */
+    float angle = atan2f(-in->y[s], in->x[s]) * RAD2DEG; /* 0° = right, counterclockwise */
     bool click = stick_clicked(g, s);
-    ui_textf(x, y, 2, C_TEXT, "X: %+6.3f  (roh %6d)", in->x[s], in->raw_x[s]);
-    ui_textf(x, y + 22, 2, C_TEXT, "Y: %+6.3f  (roh %6d)", in->y[s], in->raw_y[s]);
-    ui_textf(x, y + 44, 2, C_TEXT, "Auslenkung: %5.1f %%", magnitude * 100);
-    ui_textf(x, y + 66, 2, C_TEXT, "Winkel:     %5.0f°", angle < 0 ? angle + 360 : angle);
-    ui_textf(x, y + 88, 2, click ? C_PRESS : C_DIM, "Stick-Klick: %s", click ? "gedrückt" : "-");
+    ui_textf(x, y, 2, C_TEXT, "X: %+6.3f  (raw %6d)", in->x[s], in->raw_x[s]);
+    ui_textf(x, y + 22, 2, C_TEXT, "Y: %+6.3f  (raw %6d)", in->y[s], in->raw_y[s]);
+    ui_textf(x, y + 44, 2, C_TEXT, "Deflection: %5.1f %%", magnitude * 100);
+    ui_textf(x, y + 66, 2, C_TEXT, "Angle:      %5.0f°", angle < 0 ? angle + 360 : angle);
+    ui_textf(x, y + 88, 2, click ? C_PRESS : C_DIM, "Stick click: %s", click ? "pressed" : "-");
 }
 
 static void draw_trigger_bar(SDL_Gamepad *g, const Input *in, int s, float x)
@@ -67,7 +67,7 @@ static void draw_trigger_bar(SDL_Gamepad *g, const Input *in, int s, float x)
 
 static void draw(SDL_Gamepad *g, const Input *in)
 {
-    const char *names[2] = {"Linker Stick", "Rechter Stick"};
+    const char *names[2] = {"Left stick", "Right stick"};
     const float centers[2] = {290, 990};
     const float radius = 190;
     for (int s = 0; s < 2; s++) {
@@ -79,8 +79,8 @@ static void draw(SDL_Gamepad *g, const Input *in)
             draw_trigger_bar(g, in, s, s ? 680 : 560);
         }
     }
-    ui_text_center(640, 600, 2, C_DIM, "Kreis innen = 10 %");
-    ui_text_center(640, 622, 2, C_DIM, "Y+ = unten (SDL)");
+    ui_text_center(640, 600, 2, C_DIM, "Inner ring = 10 %");
+    ui_text_center(640, 622, 2, C_DIM, "Y+ = down (SDL)");
 }
 
 const Tab tab_sticks = {"Sticks", reset, update, draw, reset};

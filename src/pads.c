@@ -43,11 +43,11 @@ void pads_select_next(void)
     }
 }
 
-/* Schreibt die erkannten Fähigkeiten in die Konsole (hilft bei der Fehlersuche) */
+/* Prints the detected capabilities to the console (helps with troubleshooting) */
 static void log_capabilities(SDL_Gamepad *g)
 {
-    SDL_Log("Verbunden: %s | Typ %s | %04x:%04x | Verbindung %d | Rumble %d, Trigger-Rumble %d, RGB %d, "
-            "Player-LED %d | Gyro %d (%.0f Hz), Accel %d | Touchpads %d",
+    SDL_Log("Connected: %s | type %s | %04x:%04x | connection %d | rumble %d, trigger rumble %d, RGB %d, "
+            "player LED %d | gyro %d (%.0f Hz), accel %d | touchpads %d",
             SDL_GetGamepadName(g), pad_type_name(SDL_GetGamepadType(g)), SDL_GetGamepadVendor(g),
             SDL_GetGamepadProduct(g), (int)SDL_GetGamepadConnectionState(g),
             pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN), pad_has_cap(g, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN),
@@ -63,10 +63,10 @@ void pads_add(SDL_JoystickID id)
     }
     SDL_Gamepad *g = SDL_OpenGamepad(id);
     if (!g) {
-        eventlog_add("Fehler: %s", SDL_GetError());
+        eventlog_add("Error: %s", SDL_GetError());
         return;
     }
-    /* Sensoren liefern erst Daten, wenn sie eingeschaltet sind */
+    /* Sensors only deliver data once they are enabled */
     if (SDL_GamepadHasSensor(g, SDL_SENSOR_GYRO)) {
         SDL_SetGamepadSensorEnabled(g, SDL_SENSOR_GYRO, true);
     }
@@ -74,9 +74,9 @@ void pads_add(SDL_JoystickID id)
         SDL_SetGamepadSensorEnabled(g, SDL_SENSOR_ACCEL, true);
     }
     pads[count++] = g;
-    eventlog_add("Verbunden: %.40s", SDL_GetGamepadName(g));
+    eventlog_add("Connected: %.40s", SDL_GetGamepadName(g));
     log_capabilities(g);
-    pads_select(count - 1); /* neu angesteckter Controller wird sofort getestet */
+    pads_select(count - 1); /* a newly plugged-in controller is tested right away */
 }
 
 void pads_remove(SDL_JoystickID id)
@@ -85,8 +85,8 @@ void pads_remove(SDL_JoystickID id)
         if (SDL_GetGamepadID(pads[i]) != id) {
             continue;
         }
-        eventlog_add("Getrennt: %.42s", SDL_GetGamepadName(pads[i]));
-        SDL_Log("Getrennt: %s", SDL_GetGamepadName(pads[i]));
+        eventlog_add("Disconnected: %.38s", SDL_GetGamepadName(pads[i]));
+        SDL_Log("Disconnected: %s", SDL_GetGamepadName(pads[i]));
         SDL_CloseGamepad(pads[i]);
         memmove(&pads[i], &pads[i + 1], (size_t)(count - i - 1) * sizeof pads[0]);
         count--;

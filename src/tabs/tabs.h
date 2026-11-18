@@ -1,6 +1,6 @@
 /*
- * Gemeinsame Schnittstelle der Tabs. Jeder Tab liegt in einer eigenen Datei
- * und hält seinen Teststatus selbst.
+ * Common interface of the tabs. Each tab lives in its own file and keeps
+ * its own test state.
  */
 #ifndef TABS_H
 #define TABS_H
@@ -11,12 +11,12 @@
 
 typedef struct {
     const char *name;
-    /* Teststatus löschen, weil ein anderer Controller ausgewählt wurde */
+    /* Clear the test state because a different controller was selected */
     void (*reset)(void);
-    /* Jeden Frame, auch wenn der Tab nicht sichtbar ist (z. B. laufende Vibration). Darf NULL sein. */
+    /* Every frame, even when the tab is not visible (e.g. ongoing rumble). May be NULL. */
     void (*update)(SDL_Gamepad *g, const Input *in);
     void (*draw)(SDL_Gamepad *g, const Input *in);
-    /* Taste R im sichtbaren Tab. Darf NULL sein. */
+    /* R key in the visible tab. May be NULL. */
     void (*reset_key)(void);
 } Tab;
 
@@ -28,7 +28,7 @@ extern const Tab tab_rumble;
 extern const Tab tab_gyro;
 extern const Tab tab_extras;
 
-/* Ereignisse, die nur einzelne Tabs brauchen */
+/* Events that only individual tabs need */
 void buttons_on_press(SDL_Gamepad *g, SDL_GamepadButton b);
 void gyro_on_sensor(SDL_SensorType type, const float *data, Uint64 timestamp_ns);
 

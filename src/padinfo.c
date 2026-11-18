@@ -17,23 +17,23 @@ bool pad_is_nintendo(SDL_GamepadType t)
 const char *pad_type_name(SDL_GamepadType t)
 {
     switch (t) {
-    case SDL_GAMEPAD_TYPE_STANDARD: return "Standard-Gamepad";
+    case SDL_GAMEPAD_TYPE_STANDARD: return "Standard gamepad";
     case SDL_GAMEPAD_TYPE_XBOX360: return "Xbox 360";
     case SDL_GAMEPAD_TYPE_XBOXONE: return "Xbox One / Series";
     case SDL_GAMEPAD_TYPE_PS3: return "PlayStation 3";
     case SDL_GAMEPAD_TYPE_PS4: return "PlayStation 4 (DualShock 4)";
     case SDL_GAMEPAD_TYPE_PS5: return "PlayStation 5 (DualSense)";
     case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO: return "Nintendo Switch Pro";
-    case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT: return "Joy-Con links";
-    case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT: return "Joy-Con rechts";
-    case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR: return "Joy-Con Paar";
+    case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT: return "Joy-Con left";
+    case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT: return "Joy-Con right";
+    case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR: return "Joy-Con pair";
     case SDL_GAMEPAD_TYPE_GAMECUBE: return "GameCube";
     case SDL_GAMEPAD_TYPE_STEAM: return "Steam Controller";
-    default: return "Unbekannt";
+    default: return "Unknown";
     }
 }
 
-/* Aufschrift der vier Haupttasten; SDL kennt sie je nach Controller-Typ */
+/* Label of the four face buttons; SDL knows it per controller type */
 static const char *face_button_name(SDL_Gamepad *g, SDL_GamepadButton b)
 {
     switch (SDL_GetGamepadButtonLabel(g, b)) {
@@ -41,17 +41,17 @@ static const char *face_button_name(SDL_Gamepad *g, SDL_GamepadButton b)
     case SDL_GAMEPAD_BUTTON_LABEL_B: return "B";
     case SDL_GAMEPAD_BUTTON_LABEL_X: return "X";
     case SDL_GAMEPAD_BUTTON_LABEL_Y: return "Y";
-    case SDL_GAMEPAD_BUTTON_LABEL_CROSS: return "Kreuz";
-    case SDL_GAMEPAD_BUTTON_LABEL_CIRCLE: return "Kreis";
-    case SDL_GAMEPAD_BUTTON_LABEL_SQUARE: return "Quadrat";
-    case SDL_GAMEPAD_BUTTON_LABEL_TRIANGLE: return "Dreieck";
+    case SDL_GAMEPAD_BUTTON_LABEL_CROSS: return "Cross";
+    case SDL_GAMEPAD_BUTTON_LABEL_CIRCLE: return "Circle";
+    case SDL_GAMEPAD_BUTTON_LABEL_SQUARE: return "Square";
+    case SDL_GAMEPAD_BUTTON_LABEL_TRIANGLE: return "Triangle";
     default: break;
     }
     switch (b) {
-    case SDL_GAMEPAD_BUTTON_SOUTH: return "Taste unten";
-    case SDL_GAMEPAD_BUTTON_EAST: return "Taste rechts";
-    case SDL_GAMEPAD_BUTTON_WEST: return "Taste links";
-    default: return "Taste oben";
+    case SDL_GAMEPAD_BUTTON_SOUTH: return "South button";
+    case SDL_GAMEPAD_BUTTON_EAST: return "East button";
+    case SDL_GAMEPAD_BUTTON_WEST: return "West button";
+    default: return "North button";
     }
 }
 
@@ -65,27 +65,27 @@ const char *pad_button_name(SDL_Gamepad *g, SDL_GamepadButton b)
     case SDL_GAMEPAD_BUTTON_WEST:
     case SDL_GAMEPAD_BUTTON_NORTH: return face_button_name(g, b);
     case SDL_GAMEPAD_BUTTON_BACK: return ps ? (t == SDL_GAMEPAD_TYPE_PS5 ? "Create" : "Share") : nin ? "Minus (-)" : "Select";
-    case SDL_GAMEPAD_BUTTON_GUIDE: return ps ? "PS-Taste" : "Home";
+    case SDL_GAMEPAD_BUTTON_GUIDE: return ps ? "PS button" : "Home";
     case SDL_GAMEPAD_BUTTON_START: return ps ? "Options" : nin ? "Plus (+)" : "Start";
-    case SDL_GAMEPAD_BUTTON_LEFT_STICK: return ps ? "L3 (Stick-Klick)" : "L-Stick-Klick";
-    case SDL_GAMEPAD_BUTTON_RIGHT_STICK: return ps ? "R3 (Stick-Klick)" : "R-Stick-Klick";
+    case SDL_GAMEPAD_BUTTON_LEFT_STICK: return ps ? "L3 (stick click)" : "L stick click";
+    case SDL_GAMEPAD_BUTTON_RIGHT_STICK: return ps ? "R3 (stick click)" : "R stick click";
     case SDL_GAMEPAD_BUTTON_LEFT_SHOULDER: return ps ? "L1" : nin ? "L" : "LB";
     case SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER: return ps ? "R1" : nin ? "R" : "RB";
-    case SDL_GAMEPAD_BUTTON_DPAD_UP: return "D-Pad hoch";
-    case SDL_GAMEPAD_BUTTON_DPAD_DOWN: return "D-Pad runter";
-    case SDL_GAMEPAD_BUTTON_DPAD_LEFT: return "D-Pad links";
-    case SDL_GAMEPAD_BUTTON_DPAD_RIGHT: return "D-Pad rechts";
-    case SDL_GAMEPAD_BUTTON_MISC1: return ps ? "Mikrofon" : nin ? "Capture" : "Zusatz 1";
+    case SDL_GAMEPAD_BUTTON_DPAD_UP: return "D-pad up";
+    case SDL_GAMEPAD_BUTTON_DPAD_DOWN: return "D-pad down";
+    case SDL_GAMEPAD_BUTTON_DPAD_LEFT: return "D-pad left";
+    case SDL_GAMEPAD_BUTTON_DPAD_RIGHT: return "D-pad right";
+    case SDL_GAMEPAD_BUTTON_MISC1: return ps ? "Mute" : nin ? "Capture" : "Extra 1";
     case SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1: return "Paddle R1";
     case SDL_GAMEPAD_BUTTON_LEFT_PADDLE1: return "Paddle L1";
     case SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2: return "Paddle R2";
     case SDL_GAMEPAD_BUTTON_LEFT_PADDLE2: return "Paddle L2";
-    case SDL_GAMEPAD_BUTTON_TOUCHPAD: return "Touchpad-Klick";
-    case SDL_GAMEPAD_BUTTON_MISC2: return "Zusatz 2";
-    case SDL_GAMEPAD_BUTTON_MISC3: return "Zusatz 3";
-    case SDL_GAMEPAD_BUTTON_MISC4: return "Zusatz 4";
-    case SDL_GAMEPAD_BUTTON_MISC5: return "Zusatz 5";
-    case SDL_GAMEPAD_BUTTON_MISC6: return "Zusatz 6";
+    case SDL_GAMEPAD_BUTTON_TOUCHPAD: return "Touchpad click";
+    case SDL_GAMEPAD_BUTTON_MISC2: return "Extra 2";
+    case SDL_GAMEPAD_BUTTON_MISC3: return "Extra 3";
+    case SDL_GAMEPAD_BUTTON_MISC4: return "Extra 4";
+    case SDL_GAMEPAD_BUTTON_MISC5: return "Extra 5";
+    case SDL_GAMEPAD_BUTTON_MISC6: return "Extra 6";
     default: return "?";
     }
 }
@@ -117,11 +117,11 @@ const char *pad_power_text(SDL_Gamepad *g, char *buf, size_t n)
     int pct = -1;
     const char *s;
     switch (SDL_GetGamepadPowerInfo(g, &pct)) {
-    case SDL_POWERSTATE_ON_BATTERY: s = "Akku"; break;
-    case SDL_POWERSTATE_NO_BATTERY: s = "kein Akku"; break;
-    case SDL_POWERSTATE_CHARGING: s = "lädt"; break;
-    case SDL_POWERSTATE_CHARGED: s = "voll geladen"; break;
-    default: s = "unbekannt"; break;
+    case SDL_POWERSTATE_ON_BATTERY: s = "battery"; break;
+    case SDL_POWERSTATE_NO_BATTERY: s = "no battery"; break;
+    case SDL_POWERSTATE_CHARGING: s = "charging"; break;
+    case SDL_POWERSTATE_CHARGED: s = "fully charged"; break;
+    default: s = "unknown"; break;
     }
     if (pct >= 0) {
         snprintf(buf, n, "%s, %d %%", s, pct);
@@ -134,8 +134,8 @@ const char *pad_power_text(SDL_Gamepad *g, char *buf, size_t n)
 const char *pad_connection_text(SDL_Gamepad *g)
 {
     switch (SDL_GetGamepadConnectionState(g)) {
-    case SDL_JOYSTICK_CONNECTION_WIRED: return "Kabel (USB)";
-    case SDL_JOYSTICK_CONNECTION_WIRELESS: return "kabellos";
-    default: return "unbekannt";
+    case SDL_JOYSTICK_CONNECTION_WIRED: return "wired (USB)";
+    case SDL_JOYSTICK_CONNECTION_WIRELESS: return "wireless";
+    default: return "unknown";
     }
 }

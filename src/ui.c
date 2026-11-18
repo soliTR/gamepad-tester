@@ -24,7 +24,7 @@ void ui_init(SDL_Renderer *renderer)
 SDL_Renderer *ui_renderer(void) { return ren; }
 
 /* ------------------------------------------------------------------ */
-/* Maus                                                                */
+/* Mouse                                                               */
 /* ------------------------------------------------------------------ */
 
 void ui_begin_frame(void) { mouse_clicked = false; }
@@ -59,7 +59,7 @@ static bool hover(float x, float y, float w, float h)
 }
 
 /* ------------------------------------------------------------------ */
-/* Formen                                                              */
+/* Shapes                                                              */
 /* ------------------------------------------------------------------ */
 
 static void set_color(SDL_Color c) { SDL_SetRenderDrawColor(ren, c.r, c.g, c.b, c.a); }
@@ -124,9 +124,10 @@ void ui_dot(float x, float y, SDL_Color c, Uint8 alpha)
 /* ------------------------------------------------------------------ */
 
 /*
- * Die eingebaute 8x8-Schrift von SDL kennt nur ASCII. Umlaute werden
- * deshalb als Grundbuchstabe plus zwei Punkte gezeichnet, einige weitere
- * Zeichen durch ASCII ersetzt.
+ * SDL's built-in 8x8 font only knows ASCII. A few common non-ASCII
+ * characters are drawn anyway (e.g. in controller names): umlauts as base
+ * letter plus two dots, the degree sign as a small square, others are
+ * replaced by ASCII.
  */
 float ui_text(float x, float y, float s, SDL_Color c, const char *str)
 {
@@ -138,7 +139,7 @@ float ui_text(float x, float y, float s, SDL_Color c, const char *str)
         Uint32 cp = SDL_StepUTF8(&p, NULL);
         char ch[2] = {0, 0};
         const char *rep = NULL;
-        int dots = 0; /* 1 = Kleinbuchstabe, 2 = Großbuchstabe */
+        int dots = 0; /* 1 = lowercase, 2 = uppercase */
         switch (cp) {
         case 0xE4: ch[0] = 'a'; dots = 1; break;
         case 0xF6: ch[0] = 'o'; dots = 1; break;
@@ -150,7 +151,7 @@ float ui_text(float x, float y, float s, SDL_Color c, const char *str)
         case 0x2013: case 0x2014: rep = "-"; break;
         case 0x2026: rep = "..."; break;
         case 0x2192: rep = "->"; break;
-        case 0xB0: { /* Gradzeichen */
+        case 0xB0: { /* degree sign */
             SDL_FRect d = {cx + 2, cy, 3, 3};
             SDL_RenderRect(ren, &d);
             cx += 8;
@@ -203,7 +204,7 @@ void ui_text_center(float cx, float y, float s, SDL_Color c, const char *str)
 }
 
 /* ------------------------------------------------------------------ */
-/* Bedienelemente                                                      */
+/* Controls                                                            */
 /* ------------------------------------------------------------------ */
 
 bool ui_button(float x, float y, float w, float h, const char *label, bool on)

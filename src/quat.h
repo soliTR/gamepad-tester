@@ -1,4 +1,4 @@
-/* Quaternionen für die Ausrichtung des Controllers in der 3D-Ansicht */
+/* Quaternions for the orientation of the controller in the 3D view */
 #ifndef QUAT_H
 #define QUAT_H
 
@@ -18,7 +18,7 @@ static inline Quat quat_mul(Quat a, Quat b)
                   a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w};
 }
 
-/* Dreht den Vektor v um q */
+/* Rotates the vector v by q */
 static inline void quat_rotate(Quat q, const float v[3], float out[3])
 {
     Quat p = {0, v[0], v[1], v[2]};
@@ -29,7 +29,7 @@ static inline void quat_rotate(Quat q, const float v[3], float out[3])
     out[2] = r.z;
 }
 
-/* Dreht q um die Winkelgeschwindigkeit w (rad/s, Controller-Koordinaten) für dt Sekunden */
+/* Rotates q by the angular velocity w (rad/s, controller coordinates) for dt seconds */
 static inline Quat quat_integrate(Quat q, const float w[3], float dt)
 {
     float n = sqrtf(w[0] * w[0] + w[1] * w[1] + w[2] * w[2]);
