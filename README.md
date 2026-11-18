@@ -53,7 +53,29 @@ Der Kreistest zeigt, ob der Stick den Rand in allen Richtungen erreicht (Minimum
 
 ## Entwicklung
 
-Zum Testen ohne Hardware:
+### Aufbau
+
+```
+src/
+  main.c        Start, Hauptschleife, Kopf- und Fußzeile
+  ui.c/.h       Farben, Zeichnen, Text (inkl. Umlaute), Schaltflächen
+  pads.c/.h     verbundene Controller, Auswahl, An-/Abstecken
+  padinfo.c/.h  Namen von Typen, Tasten und Triggern; Fähigkeiten
+  input.c/.h    Stick- und Triggerwerte pro Frame
+  trail.c/.h    Leuchtspur für Sticks und Touchpad
+  eventlog.c/.h Ereignis-Log
+  quat.h        Quaternionen für die 3D-Ansicht
+  devtools.c/.h virtueller Controller und Screenshots
+  tabs/
+    tabs.h      gemeinsame Schnittstelle aller Tabs
+    info.c  buttons.c  sticks.c  drift.c  rumble.c  gyro.c  extras.c
+```
+
+Jeder Tab ist ein `Tab`-Objekt mit `reset`, `update`, `draw` und `reset_key` (siehe `tabs/tabs.h`).
+`update` läuft für alle Tabs in jedem Frame, damit z. B. eine Vibration weiterläuft, wenn man den Tab wechselt.
+`draw` läuft nur für den sichtbaren Tab. Ein neuer Tab braucht eine eigene Datei und einen Eintrag in der Liste `tabs[]` in `main.c`.
+
+### Testen ohne Hardware
 
 ```bash
 GAMEPAD_TESTER_VIRTUAL=1 ./build/gamepad-tester            # virtueller Controller
