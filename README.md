@@ -1,8 +1,14 @@
 # gamepad-tester
 
-Graphical Linux program for testing gamepads. Written in C with SDL3 (3.4 or newer), built with CMake.
+[![CI](https://github.com/soliTR/gamepad-tester/actions/workflows/ci.yml/badge.svg)](https://github.com/soliTR/gamepad-tester/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/soliTR/gamepad-tester)](https://github.com/soliTR/gamepad-tester/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-Made for the PS5 DualSense, 8BitDo controllers and the Nintendo Switch 2 Pro Controller (USB only).
+Graphical Linux program for testing gamepads: every button, both sticks, stick drift, rumble, gyro, touchpad and LEDs. Written in C with SDL3.
+
+Made for the PS5 DualSense, 8BitDo controllers and the Nintendo Switch 2 Pro Controller (USB only), and works with most other controllers SDL supports.
+
+![Buttons tab with the checklist of tested buttons](docs/screenshot.png)
 
 ## Features
 
@@ -16,65 +22,121 @@ Made for the PS5 DualSense, 8BitDo controllers and the Nintendo Switch 2 Pro Con
 | 6 Gyro | Live values from gyro and accelerometer, 3D view, history graph, gyro rest test with bias measurement |
 | 7 Extras | Touchpad, LED color, player LED, battery |
 
-## Installation
+## Contents
 
-### 1. Dependencies
+- [Download a release](#download-a-release) (no building needed)
+- [Build from source](#build-from-source)
+- [udev rules for rumble, gyro and LED](#udev-rules-for-rumble-gyro-and-led)
+- [Usage](#usage)
+- [Troubleshooting](#troubleshooting)
+- [Security](#security)
+- [Development](#development)
 
-You need a C compiler, CMake and SDL3 3.4 or newer. On Arch Linux and CachyOS:
+## Download a release
+
+The [releases page](https://github.com/soliTR/gamepad-tester/releases/latest) has ready-to-run archives for `x86_64` (most PCs) and `aarch64` (ARM). They contain a single program file with SDL built in and run on any distribution with glibc 2.35 or newer (Ubuntu 22.04, Debian 12, Fedora 36 or newer).
+
+### 1. Verify the download
+
+Every release comes with a `SHA256SUMS` file and a signed build provenance attestation. Download the archive and `SHA256SUMS` into the same folder, then:
 
 ```bash
-sudo pacman -S --needed base-devel cmake sdl3 libusb steam-devices
+sha256sum --check --ignore-missing SHA256SUMS
 ```
 
-- SDL needs `libusb` for the Switch 2 Pro Controller.
-- `steam-devices` (repository `multilib`) contains udev rules; without them rumble, gyro and LED don't work on many controllers. Reconnect your controllers once after installing it.
-
-Other distributions need the equivalent packages. If only an older SDL3 version is available there, build SDL3 from source.
-
-### 2. Build
-
-In the project folder:
+This shows that the file is complete and unchanged. To also confirm that it was built by this repository's [release workflow](.github/workflows/release.yml) on GitHub's servers from the tagged source code, and not uploaded by someone else, check the attestation with the [GitHub CLI](https://cli.github.com):
 
 ```bash
-cmake -B build
+gh attestation verify gamepad-tester-1.0.0-linux-x86_64.tar.gz --repo soliTR/gamepad-tester
+```
+
+It must report that the verification succeeded. See [Security](#security) for what this does and does not prove.
+
+### 2. Run it
+
+```bash
+tar xzf gamepad-tester-1.0.0-linux-x86_64.tar.gz
+./gamepad-tester-1.0.0-linux-x86_64/gamepad-tester
+```
+
+### 3. Install it (optional)
+
+For your own user, without root:
+
+```bash
+cd gamepad-tester-1.0.0-linux-x86_64
+install -Dm755 gamepad-tester ~/.local/bin/gamepad-tester
+install -Dm644 gamepad-tester.desktop ~/.local/share/applications/gamepad-tester.desktop
+```
+
+It then starts with `gamepad-tester` or from the application menu. `~/.local/bin` must be in your `PATH`; most distributions do this already. To uninstall, delete the two files again.
+
+## Build from source
+
+### Quick way
+
+The script installs the right packages for your distribution and prints the build command:
+
+```bash
+git clone https://github.com/soliTR/gamepad-tester.git
+cd gamepad-tester
+scripts/install-deps.sh
+cmake -B build            # add -DGAMEPAD_TESTER_BUNDLED_SDL=ON if the script says so
 cmake --build build
-```
-
-You can already run the program without installing it:
-
-```bash
 ./build/gamepad-tester
 ```
 
-### 3. Install
+### Packages by distribution
 
-For all users (to `/usr/local`):
+The program needs SDL3 3.4 or newer. Where the distribution ships an older SDL3 (or none), CMake downloads SDL3 itself and links it into the program: configure with `-DGAMEPAD_TESTER_BUNDLED_SDL=ON`. The download is pinned to a fixed version and verified by its SHA-256 checksum.
 
-```bash
-sudo cmake --install build
-```
+| Distribution | SDL3 | Packages |
+| --- | --- | --- |
+| Arch Linux, CachyOS, Manjaro | system | `sudo pacman -S --needed base-devel cmake sdl3 libusb` |
+| Fedora (current releases) | system | `sudo dnf install gcc cmake SDL3-devel libusb1-devel` |
+| openSUSE Tumbleweed | system | `sudo zypper install gcc cmake SDL3-devel libusb-1_0-devel` |
+| Ubuntu 26.04+ | system | `sudo apt install build-essential cmake pkg-config libsdl3-dev libusb-1.0-0-dev` |
+| Ubuntu 22.04/24.04, Debian 12/13, Linux Mint, Pop!_OS | bundled | see below |
 
-Or just for your own user (to `~/.local`, no root needed):
-
-```bash
-cmake --install build --prefix ~/.local
-```
-
-This installs the program (`bin/gamepad-tester`) and an application menu entry ("Gamepad-Tester"). Start it with `gamepad-tester` or from the menu. When installing to `~/.local`, `~/.local/bin` must be in your `PATH`. Most distributions already do this; otherwise, in fish:
+For the bundled build on Debian and Ubuntu:
 
 ```bash
-fish_add_path ~/.local/bin
+sudo apt install build-essential cmake ninja-build pkg-config ca-certificates \
+  libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev libxkbcommon-dev \
+  libwayland-dev libdecor-0-dev libegl1-mesa-dev libgl1-mesa-dev libgles2-mesa-dev libdrm-dev libgbm-dev \
+  libudev-dev libusb-1.0-0-dev libdbus-1-dev
+cmake -B build -DGAMEPAD_TESTER_BUNDLED_SDL=ON
+cmake --build build
 ```
 
-### Uninstall
+The X11 and Wayland packages are needed so the bundled SDL can open a window on both, `libudev` for plugging controllers in and out, `libusb` for the Switch 2 Pro Controller. Arch, Fedora, openSUSE and Debian 13 are built and tested on every change by [CI](.github/workflows/ci.yml).
 
-CMake records the installed files in `build/install_manifest.txt`:
+### Install
+
+```bash
+sudo cmake --install build                       # for all users, to /usr/local
+cmake --install build --prefix ~/.local          # or just for you, no root needed
+```
+
+This installs the program and an application menu entry. To uninstall, remove the files listed in `build/install_manifest.txt` (with `sudo` if you installed with `sudo`):
 
 ```bash
 xargs rm -v < build/install_manifest.txt
 ```
 
-If you installed with `sudo`, run this with `sudo` as well.
+## udev rules for rumble, gyro and LED
+
+Buttons and sticks work out of the box. For rumble, gyro, touchpad and LEDs, SDL talks to the controller directly through `/dev/hidraw*` (or USB for the Switch 2 Pro Controller), which needs udev rules that give your user access. The `steam-devices` package provides them:
+
+| Distribution | Command |
+| --- | --- |
+| Arch, CachyOS, Manjaro | `sudo pacman -S steam-devices` (repository `multilib`) |
+| Fedora | `sudo dnf install steam-devices` |
+| openSUSE Tumbleweed | `sudo zypper install steam-devices` |
+| Ubuntu | `sudo apt install steam-devices` (repository `multiverse`) |
+| Debian | `sudo apt install steam-devices` |
+
+Reconnect the controller afterwards. If Steam is installed, the rules are usually there already.
 
 ## Usage
 
@@ -84,9 +146,9 @@ If you installed with `sudo`, run this with `sudo` as well.
 - `Esc`: quit
 - Buttons are clicked with the mouse
 
-Controllers can be plugged in and out at any time.
+Controllers can be plugged in and out at any time. `gamepad-tester --version` prints the program and SDL version.
 
-## Stick drift rating
+### Stick drift rating
 
 The rest test measures for 5 seconds while both sticks are released. It rates the largest deflection during that time:
 
@@ -98,10 +160,23 @@ The circle test shows whether the stick reaches the edge in every direction (a m
 
 ## Troubleshooting
 
-- **Rumble, gyro or LED missing:** Usually access to `/dev/hidraw*` is missing. On Arch/CachyOS the `steam-devices` package provides suitable udev rules. Reconnect the controller afterwards.
+- **Rumble, gyro or LED missing:** see [udev rules](#udev-rules-for-rumble-gyro-and-led).
 - **Steam is running:** Steam Input may grab the controller. Quit Steam.
-- **Switch 2 Pro Controller:** SDL supports it only over USB (via libusb), not over Bluetooth.
+- **Switch 2 Pro Controller not detected:** SDL supports it only over USB, not over Bluetooth.
 - **8BitDo:** Gyro and rumble depend on the mode (X-Input, D-Input, Switch). Switch mode usually has both.
+- **Release archive does not start ("GLIBC_2.35 not found"):** your distribution is older than the minimum above; build from source instead.
+- **Diagnostics:** start it from a terminal. Every connected controller is printed with its detected type and capabilities.
+
+## Security
+
+- **Releases are built on GitHub, not on a personal computer.** The [release workflow](.github/workflows/release.yml) builds them on GitHub's servers from the tagged commit, runs the smoke test and publishes the archives together with `SHA256SUMS`.
+- **Build provenance:** each archive gets an attestation signed through [Sigstore](https://www.sigstore.dev). `gh attestation verify` checks that the file was produced by this repository's workflow from a specific commit, so you can read exactly the code it was built from.
+- **Pinned dependencies:** SDL3 is downloaded at a fixed version and checked against its SHA-256 checksum. All GitHub Actions are pinned to full commit hashes and updated through reviewed Dependabot pull requests.
+- **Reproducible archives:** file order, owners and timestamps are fixed, so packing the same build twice gives a byte-identical archive.
+- **What this does not prove:** an attestation shows where and from which source a file was built, not that the source is free of bugs. The source is small enough to read; start with [`src/main.c`](src/main.c).
+- The program needs no root rights and no network access. It only talks to controllers and writes no files (except screenshots when explicitly requested with `GAMEPAD_TESTER_SHOT`).
+
+To report a security problem, see [SECURITY.md](SECURITY.md).
 
 ## Development
 
@@ -109,7 +184,7 @@ The circle test shows whether the stick reaches the edge in every direction (a m
 
 ```
 src/
-  main.c        startup, main loop, header and footer
+  main.c        startup, command line, main loop, header and footer
   ui.c/.h       colors, drawing, text (8x8 bitmap font), buttons
   pads.c/.h     connected controllers, selection, hotplug
   padinfo.c/.h  names of types, buttons and triggers; capabilities
@@ -121,6 +196,10 @@ src/
   tabs/
     tabs.h      common interface of all tabs
     info.c  buttons.c  sticks.c  drift.c  rumble.c  gyro.c  extras.c
+scripts/
+  install-deps.sh  build dependencies per distribution
+  smoke-test.sh    headless test of all tabs with a virtual controller
+  package.sh       portable release archive
 ```
 
 Each tab is a `Tab` object with `reset`, `update`, `draw` and `reset_key` (see `tabs/tabs.h`).
@@ -132,12 +211,19 @@ Each tab is a `Tab` object with `reset`, `update`, `draw` and `reset_key` (see `
 ```bash
 GAMEPAD_TESTER_VIRTUAL=1 ./build/gamepad-tester            # virtual controller
 GAMEPAD_TESTER_VIRTUAL=1 GAMEPAD_TESTER_TAB=3 GAMEPAD_TESTER_SHOT=screenshot.bmp ./build/gamepad-tester
+scripts/smoke-test.sh                                      # all tabs, no screen needed
 ```
 
 `GAMEPAD_TESTER_SHOT` saves a screenshot after 30 frames and quits.
 
+### Making a release
+
+1. Set the new version in `project(... VERSION x.y.z)` in `CMakeLists.txt` and add a section `## [x.y.z] - date` to `CHANGELOG.md`.
+2. Commit, then tag and push: `git tag vx.y.z && git push origin main vx.y.z`.
+3. The release workflow builds, tests, attests and publishes the release. It refuses to run if the tag and the version in `CMakeLists.txt` differ.
+
 ## License
 
-MIT, see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE). Release archives contain SDL3, which is under the zlib license (included as `LICENSE.SDL3.txt`).
 
-Uses [SDL3](https://libsdl.org) (zlib license). Product and brand names such as DualSense, Nintendo Switch or 8BitDo belong to their respective owners and are only used to describe which controllers are supported.
+Product and brand names such as DualSense, Nintendo Switch or 8BitDo belong to their respective owners and are only used to describe which controllers are supported.
