@@ -219,12 +219,6 @@ scripts/smoke-test.sh                                      # all tabs, no screen
 
 `GAMEPAD_TESTER_SHOT` saves a screenshot after 30 frames and quits. `GAMEPAD_TESTER_RECORD=<dir>` saves 20 frames per second for `GAMEPAD_TESTER_RECORD_SECONDS` (default 4) instead; that is how `docs/demo.gif` was made.
 
-### Making a release
-
-1. Set the new version in `project(... VERSION x.y.z)` in `CMakeLists.txt` and add a section `## [x.y.z] - date` to `CHANGELOG.md`.
-2. Commit, then tag and push: `git tag vx.y.z && git push origin main vx.y.z`.
-3. The release workflow builds, tests, attests and publishes the release. It refuses to run if the tag and the version in `CMakeLists.txt` differ.
-
 ## License
 
 MIT, see [LICENSE](LICENSE). Release archives contain SDL3, which is under the zlib license (included as `LICENSE.SDL3.txt`).
