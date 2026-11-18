@@ -28,8 +28,11 @@ const char *pad_type_name(SDL_GamepadType t)
     case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT: return "Joy-Con right";
     case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR: return "Joy-Con pair";
     case SDL_GAMEPAD_TYPE_GAMECUBE: return "GameCube";
-    case SDL_GAMEPAD_TYPE_STEAM: return "Steam Controller";
-    default: return "Unknown";
+    default: {
+        /* Types added in newer SDL versions (e.g. Steam Controller): use SDL's own name */
+        const char *name = SDL_GetGamepadStringForType(t);
+        return name ? name : "Unknown";
+    }
     }
 }
 

@@ -90,7 +90,8 @@ static void handle_event(const SDL_Event *e, bool *running)
 
 static void draw_header(SDL_Gamepad *g)
 {
-    ui_text(16, 14, 3, C_TEXT, "Gamepad-Tester");
+    float w = ui_text(16, 14, 3, C_TEXT, "Gamepad-Tester");
+    ui_text(16 + w + 12, 22, 2, C_DIM, "v" GAMEPAD_TESTER_VERSION);
     if (g) {
         char buf[96];
         snprintf(buf, sizeof buf, "%.40s", SDL_GetGamepadName(g));
@@ -154,10 +155,45 @@ static bool run_frame(SDL_Renderer *ren)
     return !quit;
 }
 
+static void print_help(void)
+{
+    printf("Gamepad-Tester %s\n"
+           "Tests the buttons, sticks, stick drift, rumble, gyro, touchpad and LED of a gamepad.\n"
+           "\n"
+           "Usage: gamepad-tester [--help | --version]\n"
+           "\n"
+           "Keys: 1-7 / arrow keys switch tabs, N switches controllers, R resets the current test,\n"
+           "Esc quits.\n"
+           "\n"
+           "Project page: https://github.com/soliTR/gamepad-tester\n",
+           GAMEPAD_TESTER_VERSION);
+}
+
+/* Handles command line options; returns -1 to continue, otherwise the exit code */
+static int handle_args(int argc, char **argv)
+{
+    for (int i = 1; i < argc; i++) {
+        if (SDL_strcmp(argv[i], "--version") == 0 || SDL_strcmp(argv[i], "-v") == 0) {
+            printf("gamepad-tester %s (SDL %d.%d.%d)\n", GAMEPAD_TESTER_VERSION, SDL_VERSIONNUM_MAJOR(SDL_GetVersion()),
+                   SDL_VERSIONNUM_MINOR(SDL_GetVersion()), SDL_VERSIONNUM_MICRO(SDL_GetVersion()));
+            return 0;
+        }
+        if (SDL_strcmp(argv[i], "--help") == 0 || SDL_strcmp(argv[i], "-h") == 0) {
+            print_help();
+            return 0;
+        }
+        fprintf(stderr, "Unknown option: %s (see --help)\n", argv[i]);
+        return 2;
+    }
+    return -1;
+}
+
 int main(int argc, char **argv)
 {
-    (void)argc;
-    (void)argv;
+    int exit_code = handle_args(argc, argv);
+    if (exit_code >= 0) {
+        return exit_code;
+    }
     set_hints();
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
@@ -165,7 +201,8 @@ int main(int argc, char **argv)
     }
     SDL_Window *win;
     SDL_Renderer *ren;
-    if (!SDL_CreateWindowAndRenderer("Gamepad-Tester", SCREEN_W, SCREEN_H, SDL_WINDOW_RESIZABLE, &win, &ren)) {
+    if (!SDL_CreateWindowAndRenderer("Gamepad-Tester " GAMEPAD_TESTER_VERSION, SCREEN_W, SCREEN_H, SDL_WINDOW_RESIZABLE, &win,
+                                     &ren)) {
         SDL_Log("Creating the window failed: %s", SDL_GetError());
         return 1;
     }
