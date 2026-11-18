@@ -4,6 +4,8 @@
  *   GAMEPAD_TESTER_VIRTUAL=1      attach a virtual controller
  *   GAMEPAD_TESTER_TAB=<n>        start with tab n (0 = Overview)
  *   GAMEPAD_TESTER_SHOT=<file>    save a screenshot (BMP) after 30 frames and quit
+ *   GAMEPAD_TESTER_RECORD=<dir>   save frames as <dir>/frameNNNN.bmp (20 per second), then quit
+ *   GAMEPAD_TESTER_RECORD_SECONDS=<s>  recording length, default 4
  */
 #ifndef DEVTOOLS_H
 #define DEVTOOLS_H

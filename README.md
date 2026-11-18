@@ -8,7 +8,9 @@ Graphical Linux program for testing gamepads: every button, both sticks, stick d
 
 Made for the PS5 DualSense, 8BitDo controllers and the Nintendo Switch 2 Pro Controller (USB only), and works with most other controllers SDL supports.
 
-![Buttons tab with the checklist of tested buttons](docs/screenshot.png)
+![Demo: button checklist, sticks, drift view and the gyro 3D view](docs/demo.gif)
+
+*Recorded with the built-in virtual controller (`GAMEPAD_TESTER_VIRTUAL=1`).*
 
 ## Features
 
@@ -200,6 +202,7 @@ scripts/
   install-deps.sh  build dependencies per distribution
   smoke-test.sh    headless test of all tabs with a virtual controller
   package.sh       portable release archive
+docs/              demo GIF and social preview image
 ```
 
 Each tab is a `Tab` object with `reset`, `update`, `draw` and `reset_key` (see `tabs/tabs.h`).
@@ -214,7 +217,7 @@ GAMEPAD_TESTER_VIRTUAL=1 GAMEPAD_TESTER_TAB=3 GAMEPAD_TESTER_SHOT=screenshot.bmp
 scripts/smoke-test.sh                                      # all tabs, no screen needed
 ```
 
-`GAMEPAD_TESTER_SHOT` saves a screenshot after 30 frames and quits.
+`GAMEPAD_TESTER_SHOT` saves a screenshot after 30 frames and quits. `GAMEPAD_TESTER_RECORD=<dir>` saves 20 frames per second for `GAMEPAD_TESTER_RECORD_SECONDS` (default 4) instead; that is how `docs/demo.gif` was made.
 
 ### Making a release
 

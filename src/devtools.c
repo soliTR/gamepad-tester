@@ -6,10 +6,14 @@
 #include "ui.h"
 
 #define SHOT_AFTER_FRAMES 30
+#define RECORD_EVERY_NTH_FRAME 3 /* 60 Hz display -> 20 frames per second */
 
 static bool virtual_enabled;
 static const char *shot_path;
+static const char *record_dir;
+static float record_seconds;
 static int frames;
+static int recorded;
 
 static bool SDLCALL virtual_rumble(void *userdata, Uint16 low, Uint16 high)
 {
@@ -53,6 +57,9 @@ static void attach_virtual_pad(void)
 void devtools_init(void)
 {
     shot_path = SDL_getenv("GAMEPAD_TESTER_SHOT");
+    record_dir = SDL_getenv("GAMEPAD_TESTER_RECORD");
+    const char *seconds = SDL_getenv("GAMEPAD_TESTER_RECORD_SECONDS");
+    record_seconds = seconds ? (float)SDL_atof(seconds) : 4.0f;
     virtual_enabled = SDL_getenv("GAMEPAD_TESTER_VIRTUAL") != NULL;
     if (virtual_enabled) {
         attach_virtual_pad();
@@ -65,7 +72,11 @@ int devtools_start_tab(void)
     return tab ? SDL_atoi(tab) : -1;
 }
 
-/* Left stick circles, a button is held, sensors report fixed values */
+/*
+ * Demo input: the left stick circles, the right stick rests slightly off center
+ * (like a drifting stick), the buttons are pressed one after another, the
+ * triggers move up and down, a finger moves on the touchpad and the gyro turns.
+ */
 void devtools_before_frame(void)
 {
     SDL_Gamepad *g = pads_current();
@@ -76,13 +87,15 @@ void devtools_before_frame(void)
     float t = (float)SDL_GetTicks() / 1000.0f;
     SDL_SetJoystickVirtualAxis(j, SDL_GAMEPAD_AXIS_LEFTX, (Sint16)(cosf(t * 3) * 32000));
     SDL_SetJoystickVirtualAxis(j, SDL_GAMEPAD_AXIS_LEFTY, (Sint16)(sinf(t * 3) * 32000));
-    SDL_SetJoystickVirtualAxis(j, SDL_GAMEPAD_AXIS_RIGHTX, 900);
-    SDL_SetJoystickVirtualAxis(j, SDL_GAMEPAD_AXIS_RIGHTY, -1400);
-    SDL_SetJoystickVirtualAxis(j, SDL_GAMEPAD_AXIS_LEFT_TRIGGER, 20000);
-    SDL_SetJoystickVirtualAxis(j, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, 32767);
-    SDL_SetJoystickVirtualButton(j, SDL_GAMEPAD_BUTTON_SOUTH, true);
-    SDL_SetJoystickVirtualButton(j, SDL_GAMEPAD_BUTTON_DPAD_LEFT, true);
-    SDL_SetJoystickVirtualTouchpad(j, 0, 0, true, 0.3f, 0.4f, 1.0f);
+    SDL_SetJoystickVirtualAxis(j, SDL_GAMEPAD_AXIS_RIGHTX, (Sint16)(900 + sinf(t * 7) * 250));
+    SDL_SetJoystickVirtualAxis(j, SDL_GAMEPAD_AXIS_RIGHTY, (Sint16)(-1400 + cosf(t * 5) * 250));
+    SDL_SetJoystickVirtualAxis(j, SDL_GAMEPAD_AXIS_LEFT_TRIGGER, (Sint16)((sinf(t * 2) * 0.5f + 0.5f) * 32767));
+    SDL_SetJoystickVirtualAxis(j, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, (Sint16)((cosf(t * 1.5f) * 0.5f + 0.5f) * 32767));
+    int pressed = (int)(t * 5) % SDL_GAMEPAD_BUTTON_COUNT;
+    for (int b = 0; b < SDL_GAMEPAD_BUTTON_COUNT; b++) {
+        SDL_SetJoystickVirtualButton(j, b, b == pressed);
+    }
+    SDL_SetJoystickVirtualTouchpad(j, 0, 0, true, 0.5f + 0.3f * cosf(t * 1.5f), 0.5f + 0.3f * sinf(t * 3), 1.0f);
     float gyro[3] = {0.4f * sinf(t * 2), 0.6f, 0.2f};
     float accel[3] = {0.5f, 9.7f, -0.8f};
     Uint64 ns = SDL_GetTicksNS();
@@ -90,15 +103,29 @@ void devtools_before_frame(void)
     SDL_SendJoystickVirtualSensorData(j, SDL_SENSOR_ACCEL, ns, accel, 3);
 }
 
-bool devtools_after_draw(void)
+static void save_frame(const char *path)
 {
-    if (!shot_path || ++frames < SHOT_AFTER_FRAMES) {
-        return false;
-    }
     SDL_Surface *s = SDL_RenderReadPixels(ui_renderer(), NULL);
     if (s) {
-        SDL_SaveBMP(s, shot_path);
+        SDL_SaveBMP(s, path);
         SDL_DestroySurface(s);
     }
+}
+
+bool devtools_after_draw(void)
+{
+    frames++;
+    if (record_dir) {
+        if (frames % RECORD_EVERY_NTH_FRAME == 0) {
+            char path[1024];
+            SDL_snprintf(path, sizeof path, "%s/frame%04d.bmp", record_dir, recorded++);
+            save_frame(path);
+        }
+        return frames >= record_seconds * 60;
+    }
+    if (!shot_path || frames < SHOT_AFTER_FRAMES) {
+        return false;
+    }
+    save_frame(shot_path);
     return true;
 }
