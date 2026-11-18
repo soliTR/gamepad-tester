@@ -29,3 +29,7 @@ add_executable(gamepad-tester
 target_include_directories(gamepad-tester PRIVATE src)
 target_link_libraries(gamepad-tester PRIVATE SDL3::SDL3 m)
 target_compile_options(gamepad-tester PRIVATE -Wall -Wextra)
+
+include(GNUInstallDirs)
+install(TARGETS gamepad-tester RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES data/gamepad-tester.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)

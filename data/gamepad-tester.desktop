@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Gamepad-Tester
+Comment=Tasten, Sticks, Stickdrift, Vibration und Gyro eines Gamepads testen
+Exec=gamepad-tester
+Icon=input-gaming
+Terminal=false
+Categories=Utility;

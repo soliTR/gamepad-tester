@@ -16,13 +16,65 @@ Gedacht für PS5 DualSense, 8BitDo-Controller und den Nintendo Switch 2 Pro Cont
 | 6 Gyro | Live-Werte von Gyro und Beschleunigungssensor, 3D-Ansicht, Verlaufsgraph, Gyro-Ruhetest mit Bias-Messung |
 | 7 Extras | Touchpad, LED-Farbe, Spieler-LED, Akku |
 
-## Bauen und starten
+## Installation
+
+### 1. Abhängigkeiten
+
+Benötigt werden ein C-Compiler, CMake und SDL3 ab Version 3.4. Unter Arch Linux und CachyOS:
+
+```bash
+sudo pacman -S --needed base-devel cmake sdl3 libusb steam-devices
+```
+
+- `libusb` braucht SDL für den Switch 2 Pro Controller.
+- `steam-devices` (Repository `multilib`) enthält udev-Regeln, ohne die Vibration, Gyro und LED bei vielen Controllern nicht funktionieren. Nach der Installation die Controller einmal neu anstecken.
+
+Andere Distributionen brauchen die entsprechenden Pakete. Ist dort nur eine ältere SDL3-Version verfügbar, muss SDL3 aus dem Quellcode gebaut werden.
+
+### 2. Bauen
+
+Im Projektordner:
 
 ```bash
 cmake -B build
 cmake --build build
+```
+
+Das Programm lässt sich jetzt schon ohne Installation starten:
+
+```bash
 ./build/gamepad-tester
 ```
+
+### 3. Installieren
+
+Für alle Benutzer (nach `/usr/local`):
+
+```bash
+sudo cmake --install build
+```
+
+Oder nur für den eigenen Benutzer (nach `~/.local`, ohne Root-Rechte):
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+Installiert werden das Programm (`bin/gamepad-tester`) und ein Eintrag im Anwendungsmenü („Gamepad-Tester“). Danach startet es mit `gamepad-tester` oder über das Menü. Bei der Installation nach `~/.local` muss `~/.local/bin` im `PATH` stehen. Bei den meisten Distributionen ist das schon der Fall, sonst in fish:
+
+```bash
+fish_add_path ~/.local/bin
+```
+
+### Deinstallieren
+
+CMake merkt sich die installierten Dateien in `build/install_manifest.txt`:
+
+```bash
+xargs rm -v < build/install_manifest.txt
+```
+
+Wurde mit `sudo` installiert, den Befehl ebenfalls mit `sudo` ausführen.
 
 ## Bedienung
 
