@@ -15,6 +15,8 @@ Check that it was built by this repository's release workflow from the tagged so
 gh attestation verify gamepad-tester-@VERSION@-linux-x86_64.tar.gz --repo soliTR/gamepad-tester
 ```
 
+Offline, with the attached provenance file: add `--bundle gamepad-tester-@VERSION@.intoto.jsonl`.
+
 Then unpack and run it:
 
 ```bash

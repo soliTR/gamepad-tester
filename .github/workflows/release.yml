@@ -83,11 +83,19 @@ jobs:
           cat SHA256SUMS
 
       - name: Attest build provenance
+        id: attest
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: |
             dist/*.tar.gz
             dist/SHA256SUMS
+
+      # The same signed provenance as a release file, for offline verification
+      # (gh attestation verify --bundle) and tools like OpenSSF Scorecard
+      - name: Add provenance bundle to the release files
+        env:
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: cp "$BUNDLE" "dist/gamepad-tester-${GITHUB_REF_NAME#v}.intoto.jsonl"
 
       - name: Write release notes
         run: |
@@ -104,6 +112,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" dist/*.tar.gz dist/SHA256SUMS \
+          gh release create "$GITHUB_REF_NAME" dist/*.tar.gz dist/SHA256SUMS dist/*.intoto.jsonl \
             --repo "$GITHUB_REPOSITORY" --title "Gamepad-Tester ${GITHUB_REF_NAME#v}" \
             --notes-file notes.md --verify-tag

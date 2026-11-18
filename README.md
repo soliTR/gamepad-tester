@@ -54,7 +54,13 @@ This shows that the file is complete and unchanged. To also confirm that it was 
 gh attestation verify gamepad-tester-1.0.0-linux-x86_64.tar.gz --repo soliTR/gamepad-tester
 ```
 
-It must report that the verification succeeded. See [Security](#security) for what this does and does not prove.
+It must report that the verification succeeded. The same signed provenance is attached to every release as `gamepad-tester-<version>.intoto.jsonl`; with it, the check also works without fetching anything from GitHub's API:
+
+```bash
+gh attestation verify gamepad-tester-1.0.0-linux-x86_64.tar.gz --repo soliTR/gamepad-tester --bundle gamepad-tester-1.0.0.intoto.jsonl
+```
+
+See [Security](#security) for what this does and does not prove.
 
 ### 2. Run it
 
