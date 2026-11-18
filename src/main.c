@@ -523,6 +523,14 @@ static void add_pad(SDL_JoystickID id)
     }
     pads[npads++] = g;
     logmsg("Verbunden: %.40s", SDL_GetGamepadName(g));
+    SDL_Log("Verbunden: %s | Typ %s | %04x:%04x | Verbindung %d | Rumble %d, Trigger-Rumble %d, RGB %d, "
+            "Player-LED %d | Gyro %d (%.0f Hz), Accel %d | Touchpads %d",
+            SDL_GetGamepadName(g), type_name(SDL_GetGamepadType(g)), SDL_GetGamepadVendor(g), SDL_GetGamepadProduct(g),
+            (int)SDL_GetGamepadConnectionState(g), cap(g, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN),
+            cap(g, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN), cap(g, SDL_PROP_GAMEPAD_CAP_RGB_LED_BOOLEAN),
+            cap(g, SDL_PROP_GAMEPAD_CAP_PLAYER_LED_BOOLEAN), SDL_GamepadHasSensor(g, SDL_SENSOR_GYRO),
+            SDL_GetGamepadSensorDataRate(g, SDL_SENSOR_GYRO), SDL_GamepadHasSensor(g, SDL_SENSOR_ACCEL),
+            SDL_GetNumGamepadTouchpads(g));
     select_pad(npads - 1);
 }
 
