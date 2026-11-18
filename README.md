@@ -135,3 +135,9 @@ GAMEPAD_TESTER_VIRTUAL=1 GAMEPAD_TESTER_TAB=3 GAMEPAD_TESTER_SHOT=bild.bmp ./bui
 ```
 
 `GAMEPAD_TESTER_SHOT` speichert nach 30 Frames einen Screenshot und beendet das Programm.
+
+## Lizenz
+
+MIT, siehe [LICENSE](LICENSE).
+
+Verwendet [SDL3](https://libsdl.org) (zlib-Lizenz). Produkt- und Markennamen wie DualSense, Nintendo Switch oder 8BitDo gehören ihren jeweiligen Inhabern und dienen nur zur Beschreibung, welche Controller unterstützt werden.
