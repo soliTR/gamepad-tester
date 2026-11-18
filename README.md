@@ -3,6 +3,7 @@
 [![CI](https://github.com/soliTR/gamepad-tester/actions/workflows/ci.yml/badge.svg)](https://github.com/soliTR/gamepad-tester/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/soliTR/gamepad-tester)](https://github.com/soliTR/gamepad-tester/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/soliTR/gamepad-tester/badge)](https://scorecard.dev/viewer/?uri=github.com/soliTR/gamepad-tester)
 
 Graphical Linux program for testing gamepads: every button, both sticks, stick drift, rumble, gyro, touchpad and LEDs. Written in C with SDL3.
 
@@ -33,6 +34,7 @@ Made for the PS5 DualSense, 8BitDo controllers and the Nintendo Switch 2 Pro Con
 - [Troubleshooting](#troubleshooting)
 - [Security](#security)
 - [Development](#development)
+- [Contributing](#contributing)
 
 ## Download a release
 
@@ -218,6 +220,10 @@ scripts/smoke-test.sh                                      # all tabs, no screen
 ```
 
 `GAMEPAD_TESTER_SHOT` saves a screenshot after 30 frames and quits. `GAMEPAD_TESTER_RECORD=<dir>` saves 20 frames per second for `GAMEPAD_TESTER_RECORD_SECONDS` (default 4) instead; that is how `docs/demo.gif` was made.
+
+## Contributing
+
+Bug reports, ideas and pull requests are welcome. Especially helpful: a [controller report](https://github.com/soliTR/gamepad-tester/issues/new?template=controller_report.yml) telling which features work with your controller. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to get started and the [milestones](https://github.com/soliTR/gamepad-tester/milestones) for what is planned.
 
 ## License
 

@@ -1,0 +1,66 @@
+name: Bug report
+description: Something does not work as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please check the [troubleshooting section](https://github.com/soliTR/gamepad-tester#troubleshooting) first; missing rumble, gyro or LED is usually caused by missing udev rules.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: input
+    id: controller
+    attributes:
+      label: Controller
+      placeholder: e.g. DualSense, 8BitDo Ultimate 2 (Switch mode), Switch 2 Pro Controller
+    validations:
+      required: true
+  - type: dropdown
+    id: connection
+    attributes:
+      label: Connection
+      options:
+        - USB cable
+        - Bluetooth
+        - Wireless dongle
+    validations:
+      required: true
+  - type: input
+    id: distribution
+    attributes:
+      label: Distribution and desktop
+      placeholder: e.g. CachyOS, KDE Plasma 6, Wayland
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install gamepad-tester?
+      options:
+        - Release archive
+        - Built from source
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Output of `gamepad-tester --version`
+      placeholder: gamepad-tester 1.0.0 (SDL 3.4.20)
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Console output
+      description: Start gamepad-tester from a terminal, connect the controller and paste what it prints (the line starting with "Connected:" is the most useful).
+      render: text
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Optional, if it helps to show the problem.

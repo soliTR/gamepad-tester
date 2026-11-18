@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or help
+    url: https://github.com/soliTR/gamepad-tester/discussions
+    about: Ask questions and share experiences in Discussions.
+  - name: Security problem
+    url: https://github.com/soliTR/gamepad-tester/security/advisories/new
+    about: Please report security problems privately, not as a public issue.

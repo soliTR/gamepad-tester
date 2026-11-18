@@ -1,0 +1,58 @@
+name: Controller report
+description: Tell us how well your controller works, so we can build a compatibility list
+labels: ["controller report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reports about controllers that work perfectly are just as welcome as reports about problems.
+  - type: input
+    id: controller
+    attributes:
+      label: Controller (brand, model, mode if it has several)
+      placeholder: e.g. 8BitDo Ultimate 2 Wireless, Switch mode
+    validations:
+      required: true
+  - type: dropdown
+    id: connection
+    attributes:
+      label: Connection
+      multiple: true
+      options:
+        - USB cable
+        - Bluetooth
+        - Wireless dongle
+    validations:
+      required: true
+  - type: checkboxes
+    id: works
+    attributes:
+      label: What works?
+      options:
+        - label: All buttons
+        - label: Both sticks
+        - label: Analog triggers
+        - label: Rumble
+        - label: Trigger rumble
+        - label: Gyro and accelerometer
+        - label: Touchpad
+        - label: LED color / player LED
+        - label: Battery level
+  - type: textarea
+    id: connected-line
+    attributes:
+      label: The "Connected:" line from the console
+      description: Start gamepad-tester from a terminal and connect the controller.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: distribution
+    attributes:
+      label: Distribution
+      placeholder: e.g. Fedora 45
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything else, e.g. wrong button names or something missing.

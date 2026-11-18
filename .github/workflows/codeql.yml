@@ -1,0 +1,44 @@
+# GitHub code scanning: analyzes the C code for security problems on every push
+# and once a week. Results appear under Security -> Code scanning.
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-24.04
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install build dependencies
+        run: CI=true scripts/install-deps.sh --bundled-sdl
+
+      - name: Configure (SDL is built before the analysis starts, so only our code is analyzed)
+        run: |
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DGAMEPAD_TESTER_BUNDLED_SDL=ON
+          cmake --build build --target SDL3-static
+
+      - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          languages: c-cpp
+          build-mode: manual
+          queries: security-and-quality
+
+      - name: Build
+        run: cmake --build build --target gamepad-tester
+
+      - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          category: /language:c-cpp
