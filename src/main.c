@@ -13,6 +13,7 @@
 #include "eventlog.h"
 #include "input.h"
 #include "pads.h"
+#include "pollrate.h"
 #include "tabs/tabs.h"
 #include "ui.h"
 
@@ -26,6 +27,7 @@ static void reset_all_tabs(void)
     for (int i = 0; i < TAB_COUNT; i++) {
         tabs[i]->reset();
     }
+    pollrate_reset();
 }
 
 static void set_hints(void)
@@ -60,11 +62,29 @@ static void handle_key(SDL_Keycode key, bool *running)
     }
 }
 
+/* Controller that sent a gamepad input event, or 0 for other events */
+static SDL_JoystickID input_event_source(const SDL_Event *e)
+{
+    switch (e->type) {
+    case SDL_EVENT_GAMEPAD_AXIS_MOTION: return e->gaxis.which;
+    case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+    case SDL_EVENT_GAMEPAD_BUTTON_UP: return e->gbutton.which;
+    case SDL_EVENT_GAMEPAD_SENSOR_UPDATE: return e->gsensor.which;
+    case SDL_EVENT_GAMEPAD_TOUCHPAD_DOWN:
+    case SDL_EVENT_GAMEPAD_TOUCHPAD_MOTION:
+    case SDL_EVENT_GAMEPAD_TOUCHPAD_UP: return e->gtouchpad.which;
+    default: return 0;
+    }
+}
+
 static void handle_event(const SDL_Event *e, bool *running)
 {
     SDL_Gamepad *g = pads_current();
     SDL_JoystickID current_id = g ? SDL_GetGamepadID(g) : 0;
     ui_handle_event(e);
+    if (g && input_event_source(e) == current_id) {
+        pollrate_add(e->common.timestamp);
+    }
     switch (e->type) {
     case SDL_EVENT_QUIT: *running = false; break;
     case SDL_EVENT_KEY_DOWN: handle_key(e->key.key, running); break;
