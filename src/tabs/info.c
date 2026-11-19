@@ -5,6 +5,7 @@
 #include "eventlog.h"
 #include "padinfo.h"
 #include "pads.h"
+#include "pollrate.h"
 #include "tabs.h"
 #include "ui.h"
 
@@ -50,6 +51,13 @@ static float draw_controller_data(SDL_Gamepad *g, float x, float y)
     }
     y += 22;
     row(x, y, "Connection", C_TEXT, "%s", pad_connection_text(g));
+    y += 22;
+    PollRate pr;
+    if (pollrate_get(SDL_GetTicksNS(), &pr)) {
+        row(x, y, "Polling rate", C_TEXT, "%.0f Hz, jitter %.2f ms", pr.hz, pr.jitter_ms);
+    } else {
+        row(x, y, "Polling rate", C_DIM, "move a stick");
+    }
     y += 22;
     row(x, y, "Power", C_TEXT, "%s", pad_power_text(g, buf, sizeof buf));
     y += 22;

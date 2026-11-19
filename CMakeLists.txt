@@ -43,6 +43,7 @@ add_executable(gamepad-tester
   src/pads.c
   src/padinfo.c
   src/input.c
+  src/pollrate.c
   src/trail.c
   src/devtools.c
   src/tabs/info.c
