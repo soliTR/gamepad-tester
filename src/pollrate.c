@@ -61,3 +61,16 @@ bool pollrate_get(Uint64 now_ns, PollRate *out)
     out->samples = n;
     return true;
 }
+
+int pollrate_nominal(float hz)
+{
+    static const int rates[] = {125, 250, 500, 1000, 2000, 4000, 8000};
+    /* Reports without a change produce no event, so the measured rate is usually a bit lower */
+    for (size_t i = 0; i < SDL_arraysize(rates); i++) {
+        float ratio = hz / (float)rates[i];
+        if (ratio >= 0.85f && ratio <= 1.05f) {
+            return rates[i];
+        }
+    }
+    return 0;
+}
