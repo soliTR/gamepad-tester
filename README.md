@@ -17,7 +17,7 @@ Made for the PS5 DualSense, 8BitDo controllers and the Nintendo Switch 2 Pro Con
 
 | Tab | Content |
 | --- | --- |
-| 1 Overview | Name, type, IDs, connection, battery, available features, event log |
+| 1 Overview | Name, type, IDs, connection, polling rate with live graph, battery, available features, event log |
 | 2 Buttons | Controller graphic with live display and a checklist that ticks off every pressed button |
 | 3 Sticks | Both sticks live with trail and raw values, analog triggers |
 | 4 Drift | Rest test (5 s, traffic-light rating), magnified center view, circle test with roundness error |
@@ -199,6 +199,7 @@ src/
   pads.c/.h     connected controllers, selection, hotplug
   padinfo.c/.h  names of types, buttons and triggers; capabilities
   input.c/.h    stick and trigger values per frame
+  pollrate.c/.h polling rate from event timestamps and its history
   trail.c/.h    fading trail for sticks and touchpad
   eventlog.c/.h event log
   quat.h        quaternions for the 3D view
