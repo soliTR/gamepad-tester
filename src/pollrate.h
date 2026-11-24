@@ -22,4 +22,11 @@ bool pollrate_get(Uint64 now_ns, PollRate *out);
 /* Standard USB/HID rate (125 ... 8000 Hz) the measured rate belongs to, or 0 if none fits */
 int pollrate_nominal(float hz);
 
+/* History for the live graph: one value every 100 ms over the last 10 s */
+#define POLLRATE_HISTORY_LEN 100
+/* Call once per frame; records the current rate (0 = no measurement) when the next step is due */
+void pollrate_tick(Uint64 now_ns);
+/* Copies the history oldest first into out and returns the number of values */
+int pollrate_history(float *out, int max);
+
 #endif

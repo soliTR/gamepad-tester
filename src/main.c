@@ -246,6 +246,7 @@ int main(int argc, char **argv)
             SDL_ConvertEventToRenderCoordinates(ren, &e);
             handle_event(&e, &running);
         }
+        pollrate_tick(SDL_GetTicksNS());
         devtools_before_frame();
         if (!run_frame(ren)) {
             running = false;

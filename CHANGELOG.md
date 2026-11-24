@@ -5,7 +5,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
-- Overview tab: polling rate of the controller and its jitter, measured from the input event timestamps of the last second, with the standard rate it matches (125 to 8000 Hz).
+- Overview tab: polling rate of the controller and its jitter, measured from the input event timestamps of the last second, with the standard rate it matches (125 to 8000 Hz) and a live graph of the last 10 seconds.
 
 ## [1.0.0] - 2026-11-18
 

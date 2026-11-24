@@ -8,11 +8,21 @@
 /* Longer pauses mean the controller sent nothing new (e.g. sticks at rest), not a slow rate */
 #define MAX_GAP_NS (50 * SDL_NS_PER_MS)
 #define MIN_SAMPLES 10
+#define HISTORY_STEP_NS (100 * SDL_NS_PER_MS)
 
 static Uint64 stamps[MAX_STAMPS];
 static int head, count;
 
-void pollrate_reset(void) { head = count = 0; }
+static float history[POLLRATE_HISTORY_LEN];
+static int hist_head, hist_count;
+static Uint64 hist_next_ns;
+
+void pollrate_reset(void)
+{
+    head = count = 0;
+    hist_head = hist_count = 0;
+    hist_next_ns = 0;
+}
 
 void pollrate_add(Uint64 timestamp_ns)
 {
@@ -73,4 +83,27 @@ int pollrate_nominal(float hz)
         }
     }
     return 0;
+}
+
+void pollrate_tick(Uint64 now_ns)
+{
+    if (now_ns < hist_next_ns) {
+        return;
+    }
+    PollRate pr;
+    history[hist_head] = pollrate_get(now_ns, &pr) ? pr.hz : 0;
+    hist_head = (hist_head + 1) % POLLRATE_HISTORY_LEN;
+    if (hist_count < POLLRATE_HISTORY_LEN) {
+        hist_count++;
+    }
+    hist_next_ns = now_ns + HISTORY_STEP_NS;
+}
+
+int pollrate_history(float *out, int max)
+{
+    int n = SDL_min(hist_count, max);
+    for (int i = 0; i < n; i++) {
+        out[i] = history[(hist_head - n + i + POLLRATE_HISTORY_LEN) % POLLRATE_HISTORY_LEN];
+    }
+    return n;
 }
